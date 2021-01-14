@@ -73,7 +73,7 @@ tar_notebook_pages <- function(
     # Combine them together
     targets::tar_target_raw(
       "notebook_rmds",
-      rlang::expr(c(!! values$rmd_file)),
+      rlang::expr(c(!!! values$sym_rmd_page)),
       deps = values$rmd_page
     ),
 
@@ -181,7 +181,9 @@ tar_notebook <- function(
       rmarkdown::render_site(!! dir_md, encoding = "UTF-8")
       !! path_notebook
     }),
-    format = "file"
+    format = "file",
+    # FIXME
+    cue =  targets::tar_cue("always")
   )
 
   list(target_output, target_bookdown, target_notebook)

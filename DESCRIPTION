@@ -17,6 +17,12 @@ Imports:
     knitr,
     callr,
     rlang (>= 0.1.2),
-    magrittr
+    magrittr,
+    bookdown,
+    rmarkdown,
+    targets,
+    yaml,
+    ymlthis,
+    tarchetypes
 Suggests: 
     roxygen2
