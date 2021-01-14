@@ -62,7 +62,7 @@ tar_notebook_pages <- function(
         md_page,
         command = {
           sym_rmd_page
-          callr_knit_page(rmd_file, md_file, notebook_helper);
+          notebook_knit_page(rmd_file, md_file, notebook_helper);
           md_file
         },
         format = "file"
@@ -71,14 +71,14 @@ tar_notebook_pages <- function(
     ),
 
     # Combine them together
-    tar_target_raw(
+    targets::tar_target_raw(
       "notebook_rmds",
       rlang::expr(c(!! values$rmd_file)),
       deps = values$rmd_page
     ),
 
     # Combine them together
-    tar_target_raw(
+    targets::tar_target_raw(
       "notebook_mds",
       rlang::expr(c(!! values$md_file)),
       deps = values$md_page
@@ -130,7 +130,7 @@ tar_notebook <- function(
 
   # Prepare _output.yml
   path_output <- file.path(dir_md, "_output.yml")
-  target_output <- tar_target_raw(
+  target_output <- targets::tar_target_raw(
     "notebook_output_yaml",
     command = rlang::expr({
       ymlthis::yml_empty() %>%
@@ -143,14 +143,14 @@ tar_notebook <- function(
           )
         ) %>%
         ymlthis::yml_chuck("output") %>%
-        write_yaml(!! path_output)
+        notebook_write_yaml(!! path_output)
     }),
     format = "file"
   )
 
   # Prepare _bookdown.yml
   path_bookdown <- file.path(dir_md, "_bookdown.yml")
-  target_bookdown <- tar_target_raw(
+  target_bookdown <- targets::tar_target_raw(
     "notebook_bookdown_yaml",
     command = rlang::expr({
       ymlthis::yml_empty() %>%
@@ -162,12 +162,13 @@ tar_notebook <- function(
           before_chapter_script = basename(notebook_helper),
           rmd_files = basename(notebook_mds)
         ) %>%
-        write_yaml(!! path_bookdown)
+        notebook_write_yaml(!! path_bookdown)
     }),
     format = "file"
   )
 
   expr_extra_deps <- rlang::enexpr(extra_deps)
+
   target_notebook <- targets::tar_target_raw(
     "notebook",
     command = rlang::expr({
@@ -177,7 +178,7 @@ tar_notebook <- function(
         notebook_output_yaml
       )
       extra_deps <- !! expr_extra_deps
-      rmarkdown::render_site(!! dir_md, encoding = 'UTF-8')
+      rmarkdown::render_site(!! dir_md, encoding = "UTF-8")
       !! path_notebook
     }),
     format = "file"
@@ -227,16 +228,21 @@ knit_page <- function(rmd_in, md_out, helper_script) {
   knitr::opts_chunk$set(fig.path = dir_assets)
   knitr::opts_knit$set(base.dir = file.path(dirname(md_out), "/"))
 
-  knit(rmd_in, md_out, encoding = "UTF-8")
-
+  knitr::knit(rmd_in, md_out, encoding = "UTF-8")
   md_out
 }
 
-
-callr_knit_page <- function(rmd_in, md_out, helper_script) {
+#' @export
+notebook_knit_page <- function(rmd_in, md_out, helper_script) {
   callr::r(
     knit_page,
     list(rmd_in = rmd_in, md_out = md_out, helper_script = helper_script)
   )
   md_out
+}
+
+#' @export
+notebook_write_yaml <- function(x, file, ...) {
+  yaml::write_yaml(x, file, ...)
+  file
 }
