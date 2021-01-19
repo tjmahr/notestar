@@ -81,7 +81,8 @@ tar_notebook_pages <- function(
     targets::tar_target_raw(
       "notebook_mds",
       rlang::expr(c(!! values$md_file)),
-      deps = values$md_page
+      deps = values$md_page,
+      format = "file"
     )
   )
 }
@@ -181,9 +182,7 @@ tar_notebook <- function(
       rmarkdown::render_site(!! dir_md, encoding = "UTF-8")
       !! path_notebook
     }),
-    format = "file",
-    # FIXME
-    cue =  targets::tar_cue("always")
+    format = "file"
   )
 
   list(target_output, target_bookdown, target_notebook)
@@ -213,7 +212,6 @@ lazy_list <- function(...) {
 
 
 rmd_to_md <- function(x) gsub("[.]Rmd$", ".md", x = x)
-
 md_to_rmd <- function(x) gsub("[.]md$", ".Rmd", x = x)
 
 
@@ -234,6 +232,7 @@ knit_page <- function(rmd_in, md_out, helper_script) {
   md_out
 }
 
+
 #' @export
 notebook_knit_page <- function(rmd_in, md_out, helper_script) {
   callr::r(
@@ -243,8 +242,19 @@ notebook_knit_page <- function(rmd_in, md_out, helper_script) {
   md_out
 }
 
+
 #' @export
 notebook_write_yaml <- function(x, file, ...) {
   yaml::write_yaml(x, file, ...)
   file
+}
+
+
+#' @export
+notebook_browse <- function(file = NULL) {
+  if (is.null(file)) {
+    file <- targets::tar_read_raw("notebook")
+  }
+  browseURL(file)
+  invisible(NULL)
 }
