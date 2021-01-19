@@ -46,26 +46,31 @@ tar_notebook_pages <- function(
     ),
 
     # Prepare targets for each of the notebook pages
-    tarchetypes::tar_eval(
-      targets::tar_target(
-        rmd_page,
-        command = {
-          rmd_deps
-          rmd_file
-        },
-        format = "file"),
+    tarchetypes::tar_eval_raw(
+      quote(
+        targets::tar_target(
+          rmd_page,
+          command = {
+            rmd_deps
+            rmd_file
+          },
+          format = "file"
+        )
+      ),
       values = values
     ),
 
-    tarchetypes::tar_eval(
-      targets::tar_target(
-        md_page,
-        command = {
-          sym_rmd_page
-          notebook_knit_page(rmd_file, md_file, notebook_helper);
-          md_file
-        },
-        format = "file"
+    tarchetypes::tar_eval_raw(
+      quote(
+        targets::tar_target(
+          md_page,
+          command = {
+            sym_rmd_page
+            notebook_knit_page(rmd_file, md_file, notebook_helper);
+            md_file
+          },
+          format = "file"
+        )
       ),
       values = values
     ),
@@ -122,7 +127,6 @@ tar_notebook <- function(
   subdir_output = "docs",
   extra_deps = list()
 ) {
-
   path_notebook <- file.path(
     dir_md,
     subdir_output,
@@ -149,6 +153,20 @@ tar_notebook <- function(
     format = "file"
   )
 
+  # Note that
+  #
+  #   rlang::expr(!! rlang::sym("x"))
+  #   #> x
+  #
+  # We use this because
+  #
+  # 1. The commands inside of targets expect us to refer to other targets using
+  #    symbols (like `notebook_helper`).
+  # 2. But R CMD check warns about undefined symbols.
+  #
+  # So we "wrap" the symbol inside of rlang::sym() and !! unwraps it when
+  # rlang::expr() prepares the expression.
+
   # Prepare _bookdown.yml
   path_bookdown <- file.path(dir_md, "_bookdown.yml")
   target_bookdown <- targets::tar_target_raw(
@@ -160,23 +178,23 @@ tar_notebook <- function(
           output_dir = !! subdir_output,
           delete_merged_file = TRUE,
           new_session = TRUE,
-          before_chapter_script = basename(notebook_helper),
-          rmd_files = basename(notebook_mds)
+          before_chapter_script = basename(!! rlang::sym("notebook_helper")),
+          rmd_files = basename(!! rlang::sym("notebook_mds"))
         ) %>%
         notebook_write_yaml(!! path_bookdown)
     }),
     format = "file"
   )
 
-  expr_extra_deps <- rlang::enexpr(extra_deps)
 
+  expr_extra_deps <- rlang::enexpr(extra_deps)
   target_notebook <- targets::tar_target_raw(
     "notebook",
     command = rlang::expr({
       other_deps <- list(
-        notebook_mds,
-        notebook_bookdown_yaml,
-        notebook_output_yaml
+        !! rlang::sym("notebook_mds"),
+        !! rlang::sym("notebook_bookdown_yaml"),
+        !! rlang::sym("notebook_output_yaml")
       )
       extra_deps <- !! expr_extra_deps
       rmarkdown::render_site(!! dir_md, encoding = "UTF-8")
@@ -255,6 +273,6 @@ notebook_browse <- function(file = NULL) {
   if (is.null(file)) {
     file <- targets::tar_read_raw("notebook")
   }
-  browseURL(file)
+  utils::browseURL(file)
   invisible(NULL)
 }
