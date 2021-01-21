@@ -48,14 +48,7 @@ tar_notebook_pages <- function(
     # Prepare targets for each of the notebook pages
     tarchetypes::tar_eval_raw(
       quote(
-        targets::tar_target(
-          rmd_page,
-          command = {
-            rmd_deps
-            rmd_file
-          },
-          format = "file"
-        )
+        targets::tar_target(rmd_page, rmd_file, format = "file")
       ),
       values = values
     ),
@@ -65,6 +58,7 @@ tar_notebook_pages <- function(
         targets::tar_target(
           md_page,
           command = {
+            rmd_deps
             sym_rmd_page
             notebook_knit_page(rmd_file, md_file, notebook_helper);
             md_file
