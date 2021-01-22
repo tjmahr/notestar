@@ -26,5 +26,5 @@ Imports:
     tarchetypes
 Suggests: 
     roxygen2
-URL: https://github.com/tjmahr/tarnotes
-BugReports: https://github.com/tjmahr/tarnotes/issues
+URL: https://github.com/tjmahr/notestar
+BugReports: https://github.com/tjmahr/notestar/issues
