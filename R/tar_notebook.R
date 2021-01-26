@@ -24,6 +24,7 @@ tar_notebook_pages <- function(
   dir_md = "notebook/book",
   notebook_helper = "notebook/book/knitr-helpers.R"
 ) {
+
   rmds <- notebook_rmd_collate(dir_notebook)
 
   values <- lazy_list(
@@ -40,8 +41,19 @@ tar_notebook_pages <- function(
 
   list(
     targets::tar_target_raw(
+      "notebook_config",
+      rlang::expr(
+        list(
+          dir_notebook = !! dir_notebook,
+          dir_md = !! dir_md,
+          notebook_helper = !! notebook_helper
+        )
+      )
+    ),
+
+    targets::tar_target_raw(
       "notebook_helper",
-      rlang::expr(!! notebook_helper),
+      rlang::expr(notebook_config$notebook_helper),
       format = "file"
     ),
 
@@ -114,21 +126,13 @@ tar_notebook_pages <- function(
 #' The only output format supported is an html file produced by
 #' `cleanrmd::html_document_clean()`.
 tar_notebook <- function(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
   theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list()
 ) {
-  path_notebook <- file.path(
-    dir_md,
-    subdir_output,
-    paste0(book_filename, ".html")
-  )
 
   # Prepare _output.yml
-  path_output <- file.path(dir_md, "_output.yml")
   target_output <- targets::tar_target_raw(
     "notebook_output_yaml",
     command = rlang::expr({
@@ -142,7 +146,9 @@ tar_notebook <- function(
           )
         ) %>%
         ymlthis::yml_chuck("output") %>%
-        notebook_write_yaml(!! path_output)
+        notebook_write_yaml(
+          file.path(notebook_config$dir_md, "_output.yml")
+        )
     }),
     format = "file"
   )
@@ -162,7 +168,6 @@ tar_notebook <- function(
   # rlang::expr() prepares the expression.
 
   # Prepare _bookdown.yml
-  path_bookdown <- file.path(dir_md, "_bookdown.yml")
   target_bookdown <- targets::tar_target_raw(
     "notebook_bookdown_yaml",
     command = rlang::expr({
@@ -175,7 +180,9 @@ tar_notebook <- function(
           before_chapter_script = basename(!! rlang::sym("notebook_helper")),
           rmd_files = basename(!! rlang::sym("notebook_mds"))
         ) %>%
-        notebook_write_yaml(!! path_bookdown)
+        notebook_write_yaml(
+          file.path(notebook_config$dir_md, "_bookdown.yml")
+        )
     }),
     format = "file"
   )
@@ -191,8 +198,15 @@ tar_notebook <- function(
         !! rlang::sym("notebook_output_yaml")
       )
       extra_deps <- !! expr_extra_deps
-      rmarkdown::render_site(!! dir_md, encoding = "UTF-8")
-      !! path_notebook
+      rmarkdown::render_site(
+        notebook_config$dir_md,
+        encoding = "UTF-8"
+      )
+      file.path(
+        notebook_config$dir_md,
+        !! subdir_output,
+        paste0(!! book_filename, ".html")
+      )
     }),
     format = "file"
   )

@@ -5,8 +5,6 @@
 \title{Assemble knitted notebook md files into a single-page bookdown document}
 \usage{
 tar_notebook(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
   theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
@@ -14,13 +12,6 @@ tar_notebook(
 )
 }
 \arguments{
-\item{dir_notebook}{Name of the directory containing the Rmd files. It should
-be a relative path from the project root. Defaults to \code{"notebook"}}
-
-\item{dir_md}{Name of the directory to contain md files (knitted Rmd files).
-It should be a relative path from the project root. Defaults to
-\code{"notebook/book"}.}
-
 \item{theme}{Theme to use for \code{cleanrmd::html_document_clean()}. Defaults to
 \code{"water"}.}
 
