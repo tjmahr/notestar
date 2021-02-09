@@ -100,7 +100,6 @@ tar_notebook_pages <- function(
 
 #' Assemble knitted notebook md files into a single-page bookdown document
 #'
-#' @inheritParams tar_notebook_pages
 #' @param theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
 #'   `"water"`.
 #' @param book_filename Name to use for the final html file. Defaults to

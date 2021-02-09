@@ -1,0 +1,15 @@
+```{r setup, include = FALSE}
+# library(ggplot2)
+# fit <- targets::tar_read(fit)
+# fit
+```
+
+## Feb. 9, 2021 (Demo entry)
+
+<small>Source: <code>`r knitr::current_input()`</code></small>
+
+
+
+```{r content}
+
+```
