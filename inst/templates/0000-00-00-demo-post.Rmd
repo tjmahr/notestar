@@ -1,3 +1,5 @@
+<!--- Timestamp to trigger book rebuilds: `r Sys.time()`--->
+
 ```{r setup, include = FALSE}
 # library(ggplot2)
 # fit <- targets::tar_read(fit)
@@ -13,3 +15,4 @@
 ```{r content}
 
 ```
+

@@ -1,6 +1,91 @@
 # usethis-like facilities
 
+#' Create a brand new notebook with default settings
+#'
+#' @param dir_project file-path to the base/root folder of the project. Defaults to
+#'   `"."` which is the current working directory.
+#' @inheritParams tar_notebook_pages
+#' @return
+#'
+#' `use_notestar_makefile()` creates a Makefile that will build or clean a
+#' targets-based workflow.
+#'
+#'
+#' @export
+#' @rdname use-notestar
+use_notestar <- function(
+  dir_project = ".",
+  dir_notebook = "notebook",
+  dir_md = "notebook/book",
+  notebook_helper = "notebook/book/knitr-helpers.R",
+  open = interactive()
+) {
+  # set up a project folder
+  here::set_here(dir_project)
+  usethis::local_project(path = dir_project, quiet = FALSE)
+  notebook_file <- function(x) file.path(dir_notebook, x)
 
+  # R/functions.R
+  usethis::use_directory("R")
+  usethis::use_r("functions.R")
+
+  usethis::use_directory(dir_notebook)
+  usethis::use_directory(dir_md)
+  usethis::use_directory(file.path(dir_md, "assets"))
+
+  usethis::use_template(
+    template = "index.Rmd",
+    save_as = notebook_file("index.Rmd"),
+    package = "notestar",
+    open = open
+  )
+
+  usethis::use_template(
+    "knitr-helpers.R",
+    save_as = notebook_helper,
+    package = "notestar",
+    open = FALSE
+  )
+
+  usethis::use_template(
+    "0000-00-00-references.Rmd",
+    save_as = notebook_file("0000-00-00-references.Rmd"),
+    package = "notestar",
+    open = FALSE
+  )
+
+  usethis::use_template(
+    "_targets.R",
+    save_as = "_targets.R",
+    package = "notestar",
+    open = open
+  )
+
+  usethis::ui_todo(
+    paste(
+      "Set",
+      usethis::ui_field("Project Options > Build Tools"),
+      "to use a Makefile")
+  )
+
+  invisible(TRUE)
+}
+
+
+#' @rdname use-notestar
+use_notestar_makefile <- function(path = ".") {
+  here::set_here(dir_project)
+  usethis::local_project(path = dir_project, quiet = FALSE)
+
+  usethis::use_template("Makefile", package = "notestar")
+
+  usethis::ui_todo(
+    paste(
+      "Set",
+      usethis::ui_field("Project Options > Build Tools"),
+      "to use a Makefile")
+  )
+}
 
 
 #' Create a new notebook page
@@ -61,3 +146,5 @@ notebook_create_page <- function(
   usethis::ui_done("{usethis::ui_path(to_create)} created")
   invisible(to_create)
 }
+
+#' @importFrom rlang %||%

@@ -13,5 +13,6 @@ knitr::opts_chunk$set(
   fig.retina = 1,
   fig.width = 6,
   fig.height = 4,
-  dpi = 144
+  dpi = 144,
+  dev = "ragg_png"
 )
