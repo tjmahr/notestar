@@ -4,6 +4,8 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- say directory, not folder -->
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -35,12 +37,12 @@ devtools::install_github("tjmahr/notestar")
 ## A small example
 
 notestar works best inside of a data analysis project and specifically, as a
-part of an RStudio project. That is, we have some folder for our project,
-everything we do or create will live in the somewhere folder, and that folder is
-the default working folder for all of our R code.
+part of an RStudio project. That is, we have some directory for our project.
+Everything we do or create will live in that directory, and that directory is
+the default working directory for all of our R code.
 
-Let's create a new folder inside of a temporary directory and make that our
-project.
+Let's create a new directory inside of a temporary directory and make that the
+home base for our project.
 
 ```{r}
 project_dir <- file.path(tempdir(), pattern = "my-project")
@@ -53,6 +55,12 @@ knitr::opts_knit$set(root.dir = project_dir)
 ```
 
 
+Nothing here!
+
+```{r}
+fs::dir_tree(all = TRUE)
+```
+
 `use_notestar()` will populate the project folder with some boilerplate files.
 
 ```{r}
@@ -60,13 +68,44 @@ library(notestar)
 use_notestar()
 ```
 
-`targets::tar_make()` will then create the notebook. 
+Now, we have the basic skeleton. 
+
+```{r}
+fs::dir_tree(all = TRUE)
+```
+
+These will be documented in detail below, but we
+have a folder `notebook` where we store our notebook entries (as RMarkdown
+files), `notebook/book/` where we store the knitted versions of those entries
+(as markdown files), and `_targets` which orchestrates the compilation of the
+notebook.
+
+`targets::tar_make()` will then compile the notebook by:
+
+  - knitting each Rmd file in `notebook` *if* necessary
+  - collating the md files in `notebook/book/` into a single-document bookdown
+    book with bookdown/RMarkdown/pandoc (*if* necessary).
+
+I say "*if* necessary" because targets only builds targets if the target has not
+been built yet or if the target is out of data. Thus, notestar doesn't waste
+time regenerating earlier entries if they have not changed.
+
+
+Here we build the notebook and see targets build each target.
 
 ```{r}
 targets::tar_make()
 ```
 
-Right now, it's just the title page:
+If we ask it to build the book again, it skips everything but a special
+spellchecking target set to always run.
+
+```{r}
+targets::tar_make()
+```
+
+Right now, our compiled notebook (`"notebook/book/docs/notebook.html"`) is just
+the title page:
 
 ```{r shot1, out.width = "35%", echo = FALSE}
 webshot::webshot(
@@ -78,16 +117,35 @@ webshot::webshot(
 )
 ```
 
+If we look at the project tree, we see some additions.
+
+```{r}
+fs::dir_tree(all = TRUE)
+```
+
+Briefly, there are some md files in `notebook/book/` as well as some
+bookdown-related files (.yaml files, .rds file). There is also the output of
+bookdown in `notebook/book/docs`. `_targets/` is a new directory. It is the
+object and metadata storage for targets.
+
+
+
 We can create a new entry from a template using `notebook_create_page()` and
 regenerate the notebook. (A slug is some words we include in the filename to
 help remember what the entry is about.)
 
 ```{r}
 notebook_create_page(slug = "hello-world")
+```
+
+Now targets has to rebuild the notebook because there is a new entry that needs
+to be folded in.
+
+```{r}
 targets::tar_make()
 ```
 
-Now, that entry appears in the notebook.
+That entry appears in the notebook.
 
 ```{r shot2, out.width = "35%", echo = FALSE}
 webshot::webshot(
@@ -99,15 +157,22 @@ webshot::webshot(
 )
 ```
 
+From here, we go with the flow. We use targets as we normally would, modifying
+`R/functions.R` and `targets.R` to set up our data-processing pipeline. We can
+now use our notebook to do reporting and exploration as part of our
+data-processing pipeline. Things we make with targets can be `tar_read()` into
+our notebook entries and tracked as dependencies.
+
 ```{r, echo = FALSE}
 knitr::opts_knit$set(root.dir = NULL)
 ```
 
-## How it all works
+
+
+
+## How it all works [todo]
 
 targets + bookdown + some tricks
-
-## scratch paper
 
 ```{r, eval = FALSE}
 fs::dir_tree(path = project_dir, all = TRUE)
