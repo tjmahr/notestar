@@ -1,0 +1,129 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# notestar 📓⭐
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+notestar is a notebook system built on the targets package: *notes* with
+*tar*gets. I originally called this package tarnotes, but that sounded gross.
+
+**This README and the package are under development.**
+
+## Installation
+
+You can install notestar from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("tjmahr/notestar")
+```
+
+## A small example
+
+notestar works best inside of a data analysis project and specifically, as a
+part of an RStudio project. That is, we have some folder for our project,
+everything we do or create will live in the somewhere folder, and that folder is
+the default working folder for all of our R code.
+
+Let's create a new folder inside of a temporary directory and make that our
+project.
+
+```{r}
+project_dir <- file.path(tempdir(), pattern = "my-project")
+dir.create(project_dir)
+setwd(project_dir)
+```
+
+```{r, echo = FALSE}
+knitr::opts_knit$set(root.dir = project_dir)
+```
+
+
+`use_notestar()` will populate the project folder with some boilerplate files.
+
+```{r}
+library(notestar)
+use_notestar()
+```
+
+`targets::tar_make()` will then create the notebook. 
+
+```{r}
+targets::tar_make()
+```
+
+Right now, it's just the title page:
+
+```{r shot1, out.width = "35%", echo = FALSE}
+webshot::webshot(
+  "notebook/book/docs/notebook.html",  
+  file = "shot1.png",
+  vwidth = 400, 
+  vheight = 400,
+  zoom = 2
+)
+```
+
+We can create a new entry from a template using `notebook_create_page()` and
+regenerate the notebook. (A slug is some words we include in the filename to
+help remember what the entry is about.)
+
+```{r}
+notebook_create_page(slug = "hello-world")
+targets::tar_make()
+```
+
+Now, that entry appears in the notebook.
+
+```{r shot2, out.width = "35%", echo = FALSE}
+webshot::webshot(
+  "notebook/book/docs/notebook.html",
+  file = "shot2.png",
+  vwidth = 400, 
+  vheight = 500, 
+  zoom = 2
+)
+```
+
+```{r, echo = FALSE}
+knitr::opts_knit$set(root.dir = NULL)
+```
+
+## How it all works
+
+targets + bookdown + some tricks
+
+## scratch paper
+
+```{r, eval = FALSE}
+fs::dir_tree(path = project_dir, all = TRUE)
+```
+
+  - `.here` is a sentinel file for the here package. It indicates where the
+    project root is located.
+  - `notebook/` houses the .Rmd files that become entries in the notebook. By
+    default, it includes `index.Rmd` (a bookdown title page) and
+    `0000-00-00-references.Rmd` (an entry for a pandoc bibliography provided at
+    the end/bottom of the notebook).
+  - `notebook/book/` houses the knitted versions of the `.Rmd` entries and a
+    timestamped version of the `index.Rmd`. There is a special file here
+    `knitr-helpers.R` which is run before the Rmd -\> md and before the md -\>
+    notebook stage. `assets/` is where knitted images go and where other assets
+    to include go.
+  - `_targets.R` stores the workflow for building the notebook.
+  - `R/functions.R` creates
+

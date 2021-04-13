@@ -10,24 +10,28 @@
 #' `use_notestar_makefile()` creates a Makefile that will build or clean a
 #' targets-based workflow.
 #'
-#'
 #' @export
 #' @rdname use-notestar
 use_notestar <- function(
   dir_project = ".",
   dir_notebook = "notebook",
   dir_md = "notebook/book",
-  notebook_helper = "notebook/book/knitr-helpers.R",
+  notebook_helper = "knitr-helpers.R",
   open = interactive()
 ) {
   # set up a project folder
-  here::set_here(dir_project)
-  usethis::local_project(path = dir_project, quiet = FALSE)
+  here::set_here(dir_project, verbose = FALSE)
+  usethis::local_project(path = dir_project, quiet = TRUE)
   notebook_file <- function(x) file.path(dir_notebook, x)
+  md_file <- function(x) file.path(dir_md, x)
 
   # R/functions.R
   usethis::use_directory("R")
-  usethis::use_r("functions.R")
+  usethis::use_template(
+    template = "functions.R",
+    save_as = "R/functions.R",
+    package = "notestar"
+  )
 
   usethis::use_directory(dir_notebook)
   usethis::use_directory(dir_md)
@@ -42,7 +46,7 @@ use_notestar <- function(
 
   usethis::use_template(
     "knitr-helpers.R",
-    save_as = notebook_helper,
+    save_as = md_file(notebook_helper),
     package = "notestar",
     open = FALSE
   )
@@ -57,6 +61,11 @@ use_notestar <- function(
   usethis::use_template(
     "_targets.R",
     save_as = "_targets.R",
+    data = list(
+      dir_notebook = dir_notebook,
+      dir_md = dir_md,
+      notebook_helper = md_file(notebook_helper)
+    ),
     package = "notestar",
     open = open
   )

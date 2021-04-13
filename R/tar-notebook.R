@@ -5,8 +5,10 @@
 #' @param dir_md Name of the directory to contain md files (knitted Rmd files).
 #'   It should be a relative path from the project root. Defaults to
 #'   `"notebook/book"`.
-#' @param notebook_helper Relative path to an R script to run before knitting
-#'   each Rmd file. Defaults to `"notebook/book/knitr-helpers.R"`
+#' @param notebook_helper Filename for an R script to run before knitting
+#'   each Rmd file. The file must be in `dir_md`. Defaults to
+#'   `"knitr-helpers.R"` so the default location is
+#'   `"notebook/book/knitr_helpers.R`.
 #' @return A list of targets.
 #'
 #' @details The list of targets produced includes:

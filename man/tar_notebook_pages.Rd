@@ -18,8 +18,10 @@ be a relative path from the project root. Defaults to \code{"notebook"}}
 It should be a relative path from the project root. Defaults to
 \code{"notebook/book"}.}
 
-\item{notebook_helper}{Relative path to an R script to run before knitting
-each Rmd file. Defaults to \code{"notebook/book/knitr-helpers.R"}}
+\item{notebook_helper}{Filename for an R script to run before knitting
+each Rmd file. The file must be in \code{dir_md}. Defaults to
+\code{"knitr-helpers.R"} so the default location is
+\verb{"notebook/book/knitr_helpers.R}.}
 }
 \value{
 A list of targets.

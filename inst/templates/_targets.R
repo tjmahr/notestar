@@ -3,7 +3,7 @@ library(tarchetypes)
 library(notestar)
 library(tidyverse)
 
-source(here::here("R/functions.R"))
+source("R/functions.R")
 
 tar_option_set(
   packages = c("tidyverse", "notestar"),
@@ -19,9 +19,9 @@ targets_main <- list(
 
 targets_notebook <- list(
   tar_notebook_pages(
-    dir_notebook = "notebook",
-    dir_md = "notebook/book",
-    notebook_helper = "notebook/book/knitr-helpers.R"
+    dir_notebook = "{{dir_notebook}}",
+    dir_md = "{{dir_md}}",
+    notebook_helper = "{{notebook_helper}}"
   ),
   # tar_file(notebook_csl_file, "notebook/book/assets/apa.csl"),
   # tar_file(notebook_bib_file, "notebook/book/assets/refs.bib"),
