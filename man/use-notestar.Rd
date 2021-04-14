@@ -13,7 +13,7 @@ use_notestar(
   open = interactive()
 )
 
-use_notestar_makefile(path = ".")
+use_notestar_makefile(dir_project = ".")
 }
 \arguments{
 \item{dir_project}{file-path to the base/root folder of the project. Defaults to

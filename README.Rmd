@@ -34,6 +34,11 @@ You can install notestar from [GitHub](https://github.com/) with:
 devtools::install_github("tjmahr/notestar")
 ```
 
+## A demo notebook
+
+Here is an example project/notebook showing how notestar combines various .Rmd
+into a single HTML file: <https://github.com/tjmahr/notestar-demo>.
+
 ## A small example
 
 notestar works best inside of a data analysis project and specifically, as a

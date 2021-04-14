@@ -1,4 +1,4 @@
-<!--- Timestamp to trigger book rebuilds: `r Sys.time()`--->
+<!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
 
 ```{r setup, include = FALSE}
 # library(ggplot2)

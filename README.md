@@ -22,6 +22,12 @@ You can install notestar from [GitHub](https://github.com/) with:
 devtools::install_github("tjmahr/notestar")
 ```
 
+## A demo notebook
+
+Here is an example project/notebook showing how notestar combines
+various .Rmd into a single HTML file:
+<https://github.com/tjmahr/notestar-demo>.
+
 ## A small example
 
 notestar works best inside of a data analysis project and specifically,
@@ -60,7 +66,6 @@ use_notestar()
 #> v Writing 'notebook/book/knitr-helpers.R'
 #> v Writing 'notebook/0000-00-00-references.Rmd'
 #> v Writing '_targets.R'
-#> * Set Project Options > Build Tools to use a Makefile
 #> v Setting active project to '<no active project>'
 ```
 
@@ -135,7 +140,7 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\RtmpK48PPO\file2d6c12d8560a" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\RtmpK48PPO\rmarkdown-str2d6c4a294879.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\Rtmp6VPNB2\file15f83a5f28f8" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\Rtmp6VPNB2\rmarkdown-str15f822402bc2.html" 
 #> 
 #> Output created: docs/notebook.html
 #> * end pipeline
@@ -228,10 +233,10 @@ filename to help remember what the entry is about.)
 
 ``` r
 notebook_create_page(slug = "hello-world")
-#> v Setting active project to 'C:/Users/Tristan/AppData/Local/Temp/Rtmp8KDe0y/my-project'
-#> v Writing 'notebook/2021-04-13-hello-world.Rmd'
-#> * Edit 'notebook/2021-04-13-hello-world.Rmd'
-#> v 'notebook/2021-04-13-hello-world.Rmd' created
+#> v Setting active project to 'C:/Users/Tristan/AppData/Local/Temp/Rtmpyo1pfG/my-project'
+#> v Writing 'notebook/2021-04-14-hello-world.Rmd'
+#> * Edit 'notebook/2021-04-14-hello-world.Rmd'
+#> v 'notebook/2021-04-14-hello-world.Rmd' created
 ```
 
 Now targets has to rebuild the notebook because there is a new entry
@@ -248,16 +253,16 @@ targets::tar_make()
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 #> v skip target notebook_config
-#> * run target 2021-04-13-hello-world.Rmd
 #> v skip target 0000-00-00-references.Rmd
+#> * run target 2021-04-14-hello-world.Rmd
 #> v skip target index.Rmd
 #> v skip target spellcheck_exceptions
 #> v skip target notebook_output_yaml
 #> v skip target notebook_helper
 #> * run target notebook_rmds
-#> * run target 2021-04-13-hello-world.md
 #> v skip target 0000-00-00-references.md
 #> v skip target index.md
+#> * run target 2021-04-14-hello-world.md
 #> * run target spellcheck_notebook
 #> * run target notebook_mds
 #> * run target spellcheck_report_results_change
@@ -273,7 +278,7 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\RtmpAF7Mcn\file2618511b523f" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\RtmpAF7Mcn\rmarkdown-str26183a993e5a.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\Rtmp4W2p22\file2618647a4e69" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\Rtmp4W2p22\rmarkdown-str2618b09717b.html" 
 #> 
 #> Output created: docs/notebook.html
 #> * end pipeline

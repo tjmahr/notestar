@@ -70,29 +70,22 @@ use_notestar <- function(
     open = open
   )
 
-  usethis::ui_todo(
-    paste(
-      "Set",
-      usethis::ui_field("Project Options > Build Tools"),
-      "to use a Makefile")
-  )
-
   invisible(TRUE)
 }
 
 
+#' @export
 #' @rdname use-notestar
-use_notestar_makefile <- function(path = ".") {
-  here::set_here(dir_project)
+use_notestar_makefile <- function(dir_project = ".") {
   usethis::local_project(path = dir_project, quiet = FALSE)
-
   usethis::use_template("Makefile", package = "notestar")
 
   usethis::ui_todo(
     paste(
       "Set",
       usethis::ui_field("Project Options > Build Tools"),
-      "to use a Makefile")
+      "to use a Makefile"
+    )
   )
 }
 
