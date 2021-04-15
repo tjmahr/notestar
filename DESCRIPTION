@@ -37,6 +37,7 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2
+SystemRequirements: pandoc (>= 1.14) - http://pandoc.org
 URL: https://github.com/tjmahr/notestar
 BugReports: https://github.com/tjmahr/notestar/issues
 Config/testthat/edition: 3
