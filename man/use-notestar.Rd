@@ -27,9 +27,13 @@ It should be a relative path from the project root. Defaults to
 \code{"notebook/book"}.}
 
 \item{notebook_helper}{Filename for an R script to run before knitting
-each Rmd file. The file must be in \code{dir_md}. Defaults to
+each Rmd file and rendering the notebook with bookdown. The file must be in \code{dir_md}. Defaults to
 \code{"knitr-helpers.R"} so the default location is
 \verb{"notebook/book/knitr_helpers.R}.}
+
+\item{open}{whether to open \verb{_targets.R}, \code{notebook/index.Rmd}, and
+\code{R/functions.R} when they are created. Defaults to \code{interactive()} (whether
+the code is being called interactively).}
 }
 \value{
 \code{use_notestar_makefile()} creates a Makefile that will build or clean a

@@ -5,7 +5,7 @@ create_local_project <- function(
   env = parent.frame()
 ) {
   old_options <- options(usethis.quiet = TRUE)
-  old_project <- usethis::proj_get()
+  old_project <- getwd()
 
   withr::defer(
     {
@@ -21,7 +21,6 @@ create_local_project <- function(
 
   # fs::dir_create(dir)
   setwd(dir)
-  usethis::proj_set(dir)
+  usethis::proj_set(dir, force = TRUE)
   invisible(dir)
 }
-

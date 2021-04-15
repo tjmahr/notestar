@@ -4,9 +4,11 @@
 \name{notestar-package}
 \alias{notestar}
 \alias{notestar-package}
-\title{notestar: What the Package Does (One Line, Title Case)}
+\title{notestar: Notebooks Using 'Targets' and 'Bookdown'}
 \description{
-What the package does (one paragraph).
+'Targets' is an R package for dependency and build management in 
+    data analysis projects. This package provides a set of targets and project 
+    infrastructure to create 'bookdown'-based notebooks using 'targets'.
 }
 \seealso{
 Useful links:
@@ -17,7 +19,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Tristan Mahr \email{tristan.mahr@wisc.edu} (\href{https://orcid.org/0000-0002-8890-5116}{ORCID})
 
 }
 \keyword{internal}

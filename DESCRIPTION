@@ -1,13 +1,17 @@
 Package: notestar
-Title: What the Package Does (One Line, Title Case)
+Title: Notebooks Using 'Targets' and 'Bookdown'
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person(
+      given = "Tristan",
+      family = "Mahr",
+      role = c("aut", "cre"),
+      email = "tristan.mahr@wisc.edu",
+      comment = c(ORCID = "0000-0002-8890-5116")
+    )
+Description: 'Targets' is an R package for dependency and build management in 
+    data analysis projects. This package provides a set of targets and project 
+    infrastructure to create 'bookdown'-based notebooks using 'targets'.   
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -23,10 +27,19 @@ Imports:
     targets,
     yaml,
     ymlthis,
-    tarchetypes
+    tarchetypes,
+    withr,
+    usethis,
+    fs,
+    here,
+    tidyverse,
+    cleanrmd (>= 0.0.7),
+    spelling
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2
 URL: https://github.com/tjmahr/notestar
 BugReports: https://github.com/tjmahr/notestar/issues
 Config/testthat/edition: 3
+Remotes:  
+    gadenbuie/cleanrmd

@@ -19,7 +19,7 @@ It should be a relative path from the project root. Defaults to
 \code{"notebook/book"}.}
 
 \item{notebook_helper}{Filename for an R script to run before knitting
-each Rmd file. The file must be in \code{dir_md}. Defaults to
+each Rmd file and rendering the notebook with bookdown. The file must be in \code{dir_md}. Defaults to
 \code{"knitr-helpers.R"} so the default location is
 \verb{"notebook/book/knitr_helpers.R}.}
 }
@@ -33,8 +33,9 @@ Create targets to knit notebook Rmd files
 The list of targets produced includes:
 \itemize{
 \item \code{notebook_helper}, a file for the helper R script.
-\item one file target for each input Rmd file. The targets used
-inside these files are detected and tracked for changes.
+\item one file target for each input Rmd file. Any targets used
+with \code{tar_read()} or \code{tar_load()} inside these files are detected
+and checked for changes.
 \item one file target for each output md file.
 \item \code{notebook_rmds}, a combined target for the input Rmd files.
 \item \code{notebook_pages}, a combined target for the output md files.

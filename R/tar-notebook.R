@@ -6,7 +6,7 @@
 #'   It should be a relative path from the project root. Defaults to
 #'   `"notebook/book"`.
 #' @param notebook_helper Filename for an R script to run before knitting
-#'   each Rmd file. The file must be in `dir_md`. Defaults to
+#'   each Rmd file and rendering the notebook with bookdown. The file must be in `dir_md`. Defaults to
 #'   `"knitr-helpers.R"` so the default location is
 #'   `"notebook/book/knitr_helpers.R`.
 #' @return A list of targets.
@@ -14,8 +14,9 @@
 #' @details The list of targets produced includes:
 #'
 #' * `notebook_helper`, a file for the helper R script.
-#' * one file target for each input Rmd file. The targets used
-#'   inside these files are detected and tracked for changes.
+#' * one file target for each input Rmd file. Any targets used
+#'   with `tar_read()` or `tar_load()` inside these files are detected
+#'   and checked for changes.
 #' * one file target for each output md file.
 #' * `notebook_rmds`, a combined target for the input Rmd files.
 #' * `notebook_pages`, a combined target for the output md files.
@@ -215,7 +216,7 @@ tar_notebook <- function(
   list(target_output, target_bookdown, target_notebook)
 }
 
-
+#' @inheritParams tar_notebook_pages
 #' @export
 notebook_rmd_collate <- function (dir_notebook = "notebook") {
   index <- file.path(dir_notebook, "index.Rmd")
@@ -270,13 +271,25 @@ notebook_knit_page <- function(rmd_in, md_out, helper_script) {
 }
 
 
+#' Write out a yaml-file and return the path
+#'
+#' This function is a wrapper over `yaml::write_yaml()` that works with file
+#' targets.
+#'
+#' @param x,file,... arguments passed to `yaml::write_yaml()`.
+#' @return the yaml `file` is written and the value of `file` is returned
 #' @export
 notebook_write_yaml <- function(x, file, ...) {
   yaml::write_yaml(x, file, ...)
   file
 }
 
-
+#' Open the notebook in a browser
+#'
+#' @param file full path to the notebook file. Defaults to `NULL` in which case
+#'   it finds the path using targets.
+#' @return This function is called for its side effects so it return `NULL`
+#'   invisibly.
 #' @export
 notebook_browse <- function(file = NULL) {
   if (is.null(file)) {

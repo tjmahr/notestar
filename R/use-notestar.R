@@ -5,6 +5,9 @@
 #' @param dir_project file-path to the base/root folder of the project. Defaults to
 #'   `"."` which is the current working directory.
 #' @inheritParams tar_notebook_pages
+#' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
+#'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
+#'   the code is being called interactively).
 #' @return
 #'
 #' `use_notestar_makefile()` creates a Makefile that will build or clean a
@@ -30,7 +33,8 @@ use_notestar <- function(
   usethis::use_template(
     template = "functions.R",
     save_as = "R/functions.R",
-    package = "notestar"
+    package = "notestar",
+    open = open
   )
 
   usethis::use_directory(dir_notebook)
