@@ -5,6 +5,8 @@
 # notestar 📓⭐
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/tjmahr/notestar/workflows/R-CMD-check/badge.svg)](https://github.com/tjmahr/notestar/actions)
 <!-- badges: end -->
 
 notestar is a notebook system built on the targets package: *notes* with
@@ -107,7 +109,7 @@ Here we build the notebook and see targets build each target.
 
 ``` r
 targets::tar_make()
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 #> v ggplot2 3.3.3     v purrr   0.3.4
 #> v tibble  3.1.0     v dplyr   1.0.5
 #> v tidyr   1.1.3     v stringr 1.4.0
@@ -140,7 +142,7 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\Rtmp6VPNB2\file15f83a5f28f8" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\Rtmp6VPNB2\rmarkdown-str15f822402bc2.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\RtmpAdUbJK\file1cf41c926443" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\RtmpAdUbJK\rmarkdown-str1cf436c91103.html" 
 #> 
 #> Output created: docs/notebook.html
 #> * end pipeline
@@ -151,7 +153,7 @@ spellchecking target set to always run.
 
 ``` r
 targets::tar_make()
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 #> v ggplot2 3.3.3     v purrr   0.3.4
 #> v tibble  3.1.0     v dplyr   1.0.5
 #> v tidyr   1.1.3     v stringr 1.4.0
@@ -233,10 +235,10 @@ filename to help remember what the entry is about.)
 
 ``` r
 notebook_create_page(slug = "hello-world")
-#> v Setting active project to 'C:/Users/Tristan/AppData/Local/Temp/Rtmpyo1pfG/my-project'
-#> v Writing 'notebook/2021-04-14-hello-world.Rmd'
-#> * Edit 'notebook/2021-04-14-hello-world.Rmd'
-#> v 'notebook/2021-04-14-hello-world.Rmd' created
+#> v Setting active project to 'C:/Users/Tristan/AppData/Local/Temp/Rtmpa6uLX5/my-project'
+#> v Writing 'notebook/2021-04-15-hello-world.Rmd'
+#> * Edit 'notebook/2021-04-15-hello-world.Rmd'
+#> v 'notebook/2021-04-15-hello-world.Rmd' created
 ```
 
 Now targets has to rebuild the notebook because there is a new entry
@@ -244,7 +246,7 @@ that needs to be folded in.
 
 ``` r
 targets::tar_make()
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 #> v ggplot2 3.3.3     v purrr   0.3.4
 #> v tibble  3.1.0     v dplyr   1.0.5
 #> v tidyr   1.1.3     v stringr 1.4.0
@@ -253,8 +255,8 @@ targets::tar_make()
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 #> v skip target notebook_config
+#> * run target 2021-04-15-hello-world.Rmd
 #> v skip target 0000-00-00-references.Rmd
-#> * run target 2021-04-14-hello-world.Rmd
 #> v skip target index.Rmd
 #> v skip target spellcheck_exceptions
 #> v skip target notebook_output_yaml
@@ -262,7 +264,7 @@ targets::tar_make()
 #> * run target notebook_rmds
 #> v skip target 0000-00-00-references.md
 #> v skip target index.md
-#> * run target 2021-04-14-hello-world.md
+#> * run target 2021-04-15-hello-world.md
 #> * run target spellcheck_notebook
 #> * run target notebook_mds
 #> * run target spellcheck_report_results_change
@@ -278,7 +280,7 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\Rtmp4W2p22\file2618647a4e69" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\Rtmp4W2p22\rmarkdown-str2618b09717b.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.utf8.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.0\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\RtmpYx5TWC\filed806acd6446" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.0/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\RtmpYx5TWC\rmarkdown-strd805f6f21c4.html" 
 #> 
 #> Output created: docs/notebook.html
 #> * end pipeline
