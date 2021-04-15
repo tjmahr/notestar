@@ -1,12 +1,15 @@
 library(targets)
 library(tarchetypes)
 library(notestar)
-library(tidyverse)
+# library(tidyverse)
 
 source("R/functions.R")
 
 tar_option_set(
-  packages = c("tidyverse", "notestar"),
+  packages = c(
+    # "tidyverse",
+    "notestar"
+  ),
   imports = c("notestar")
 )
 

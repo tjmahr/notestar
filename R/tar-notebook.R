@@ -56,7 +56,7 @@ tar_notebook_pages <- function(
 
     targets::tar_target_raw(
       "notebook_helper",
-      rlang::expr(notebook_config$notebook_helper),
+      quote(notebook_config$notebook_helper),
       format = "file"
     ),
 
@@ -149,7 +149,10 @@ tar_notebook <- function(
         ) %>%
         ymlthis::yml_chuck("output") %>%
         notebook_write_yaml(
-          file.path(notebook_config$dir_md, "_output.yml")
+          file.path(
+            !! quote(notebook_config$dir_md),
+            "_output.yml"
+          )
         )
     }),
     format = "file"
@@ -183,7 +186,10 @@ tar_notebook <- function(
           rmd_files = basename(!! rlang::sym("notebook_mds"))
         ) %>%
         notebook_write_yaml(
-          file.path(notebook_config$dir_md, "_bookdown.yml")
+          file.path(
+            !! quote(notebook_config$dir_md),
+            "_bookdown.yml"
+          )
         )
     }),
     format = "file"
@@ -201,11 +207,11 @@ tar_notebook <- function(
       )
       extra_deps <- !! expr_extra_deps
       rmarkdown::render_site(
-        notebook_config$dir_md,
+        !! quote(notebook_config$dir_md),
         encoding = "UTF-8"
       )
       file.path(
-        notebook_config$dir_md,
+        !! quote(notebook_config$dir_md),
         !! subdir_output,
         paste0(!! book_filename, ".html")
       )
@@ -216,9 +222,17 @@ tar_notebook <- function(
   list(target_output, target_bookdown, target_notebook)
 }
 
+
+#' Gather rmd entries and put them in order
+#'
+#' Files are sorted with index.Rmd first followed by the rest in lexicographic
+#' order.
+#'
 #' @inheritParams tar_notebook_pages
+#' @return a vector of paths to rmd files
 #' @export
-notebook_rmd_collate <- function (dir_notebook = "notebook") {
+#' @keywords internal
+notebook_rmd_collate <- function(dir_notebook = "notebook") {
   index <- file.path(dir_notebook, "index.Rmd")
   posts <- list.files(
     path = dir_notebook,
@@ -244,7 +258,7 @@ md_to_rmd <- function(x) gsub("[.]md$", ".Rmd", x = x)
 
 
 knit_page <- function(rmd_in, md_out, helper_script) {
-  require(knitr)
+  requireNamespace("knitr")
   source(helper_script)
 
   dir_assets <- file.path(
@@ -261,6 +275,12 @@ knit_page <- function(rmd_in, md_out, helper_script) {
 }
 
 
+#' Knit a single notebook entry
+#'
+#' @keywords internal
+#' @param rmd_in path to the rmd file to knit
+#' @param md_out path to the md file to create
+#' @param helper_script path to an R script to run beforehand
 #' @export
 notebook_knit_page <- function(rmd_in, md_out, helper_script) {
   callr::r(

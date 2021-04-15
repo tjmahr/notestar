@@ -32,7 +32,6 @@ Imports:
     usethis,
     fs,
     here,
-    tidyverse,
     cleanrmd (>= 0.0.7),
     spelling
 Suggests: 
