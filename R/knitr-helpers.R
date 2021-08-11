@@ -30,3 +30,31 @@ notebook_set_opts_chunk <- function() {
   knitr::opts_chunk$set(defaults)
   defaults
 }
+
+#' @rdname set_knitr_opts
+#' @export
+notebook_set_markdown_hooks <- function() {
+  # present plots using html figures
+  hook_figure_plot <- function(x, options) {
+    tags <- htmltools::tags
+    cap <- options$fig.cap
+    w <- options$out.width
+    h <- options$out.height
+
+    style_align <- if (options$fig.align == "center") {
+      "margin-left: auto; margin-right: auto; display: block;"
+    }
+    style_out_width <- sprintf("width:%s;", options$out.width)
+
+    style <- paste0(style_align, style_out_width, collapse = " ")
+
+    as.character(tags$figure(
+      tags$img(src = x, alt = cap, width = w, height = h, style = style),
+      tags$figcaption(cap)
+    ))
+  }
+
+  knitr::render_markdown()
+
+  knitr::knit_hooks$set(plot = hook_figure_plot)
+}

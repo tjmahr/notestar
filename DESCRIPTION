@@ -33,7 +33,8 @@ Imports:
     fs,
     here,
     cleanrmd (>= 0.0.7),
-    spelling
+    spelling,
+    htmltools
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2
@@ -41,5 +42,5 @@ SystemRequirements: pandoc (>= 1.14) - http://pandoc.org
 URL: https://github.com/tjmahr/notestar
 BugReports: https://github.com/tjmahr/notestar/issues
 Config/testthat/edition: 3
-Remotes:  
+Remotes: 
     gadenbuie/cleanrmd
