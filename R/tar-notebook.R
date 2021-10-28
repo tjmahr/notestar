@@ -284,7 +284,11 @@ knit_page <- function(rmd_in, md_out, helper_script) {
   # Clean out figures
   if (isTRUE(knitr::opts_knit$get("notestar_purge_figures"))) {
     if (dir.exists(dir_assets)) {
-      old_files <- list.files(dir_assets, full.names = TRUE, recursive = TRUE)
+      old_files <- list.files(
+        file.path(dirname(md_out), dir_assets),
+        full.names = TRUE,
+        recursive = TRUE
+      )
       file.remove(old_files)
     }
   }
