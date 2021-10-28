@@ -6,9 +6,7 @@
 \alias{notestar-package}
 \title{notestar: Notebooks Using 'Targets' and 'Bookdown'}
 \description{
-'Targets' is an R package for dependency and build management in 
-    data analysis projects. This package provides a set of targets and project 
-    infrastructure to create 'bookdown'-based notebooks using 'targets'.
+'Targets' is an R package for dependency and build management in data analysis projects. This package provides a set of targets and project infrastructure to create 'bookdown'-based notebooks using 'targets'.
 }
 \seealso{
 Useful links:

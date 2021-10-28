@@ -5,9 +5,9 @@
 #' @param dir_md Name of the directory to contain md files (knitted Rmd files).
 #'   It should be a relative path from the project root. Defaults to
 #'   `"notebook/book"`.
-#' @param notebook_helper Filename for an R script to run before knitting
-#'   each Rmd file and rendering the notebook with bookdown. The file must be in `dir_md`. Defaults to
-#'   `"knitr-helpers.R"` so the default location is
+#' @param notebook_helper Filename for an R script to run before knitting each
+#'   Rmd file and rendering the notebook with bookdown. The file must be in
+#'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
 #'   `"notebook/book/knitr_helpers.R`.
 #' @return A list of targets.
 #'
@@ -32,7 +32,7 @@ tar_notebook_pages <- function(
 
   values <- lazy_list(
     rmd_file = !! rmds,
-    rmd_page = basename(.data$rmd_file),
+    rmd_page = make.names(basename(.data$rmd_file), unique = TRUE),
     sym_rmd_page = rlang::syms(.data$rmd_page),
     rmd_deps = lapply(.data$rmd_file, tarchetypes::tar_knitr_deps_expr),
     md_page = rmd_to_md(.data$rmd_page),

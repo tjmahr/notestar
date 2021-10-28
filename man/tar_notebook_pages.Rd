@@ -18,9 +18,9 @@ be a relative path from the project root. Defaults to \code{"notebook"}}
 It should be a relative path from the project root. Defaults to
 \code{"notebook/book"}.}
 
-\item{notebook_helper}{Filename for an R script to run before knitting
-each Rmd file and rendering the notebook with bookdown. The file must be in \code{dir_md}. Defaults to
-\code{"knitr-helpers.R"} so the default location is
+\item{notebook_helper}{Filename for an R script to run before knitting each
+Rmd file and rendering the notebook with bookdown. The file must be in
+\code{dir_md}. Defaults to \code{"knitr-helpers.R"} so the default location is
 \verb{"notebook/book/knitr_helpers.R}.}
 }
 \value{
