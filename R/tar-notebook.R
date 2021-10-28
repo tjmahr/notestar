@@ -274,27 +274,28 @@ knit_page <- function(rmd_in, md_out, helper_script) {
     source(helper_script, local = TRUE)
   }
 
+  dir_base <- dirname(md_out)
   dir_assets <- file.path(
     "assets",
     "figure",
     tools::file_path_sans_ext(basename(rmd_in)),
     "/"
   )
+  dir_assets_full <- file.path(dir_base, dir_assets)
 
   # Clean out figures
   if (isTRUE(knitr::opts_knit$get("notestar_purge_figures"))) {
-    if (dir.exists(dir_assets)) {
+    if (dir.exists(dir_assets_full)) {
       old_files <- list.files(
-        file.path(dirname(md_out), dir_assets),
+        dir_assets_full,
         full.names = TRUE,
         recursive = TRUE
       )
       file.remove(old_files)
     }
   }
-
   knitr::opts_chunk$set(fig.path = dir_assets)
-  knitr::opts_knit$set(base.dir = file.path(dirname(md_out), "/"))
+  knitr::opts_knit$set(base.dir = file.path(dir_base, "/"))
   knitr::knit(rmd_in, md_out, encoding = "UTF-8")
 
   md_out
