@@ -8,7 +8,8 @@ tar_notebook(
   theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
-  extra_deps = list()
+  extra_deps = list(),
+  markdown_document2_args = list()
 )
 }
 \arguments{

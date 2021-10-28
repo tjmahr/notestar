@@ -3,11 +3,14 @@
 \name{notebook_set_opts_knit}
 \alias{notebook_set_opts_knit}
 \alias{notebook_set_opts_chunk}
+\alias{notebook_set_markdown_hooks}
 \title{Set default knitr options for notebook knitting}
 \usage{
 notebook_set_opts_knit()
 
 notebook_set_opts_chunk()
+
+notebook_set_markdown_hooks()
 }
 \value{
 a list containing the default options used

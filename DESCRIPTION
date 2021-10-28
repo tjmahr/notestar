@@ -33,7 +33,8 @@ Imports:
     fs,
     here,
     cleanrmd (>= 0.0.7),
-    spelling
+    spelling,
+    htmltools
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2

@@ -131,8 +131,20 @@ tar_notebook <- function(
   theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
-  extra_deps = list()
+  extra_deps = list(),
+  markdown_document2_args = list()
 ) {
+
+  markdown_document2_args_defaults <- lazy_list(
+    base_format = "cleanrmd::html_document_clean",
+    theme = !! theme,
+    toc = TRUE,
+    mathjax = "default"
+  )
+
+  markdown_document2_args_defaults[names(markdown_document2_args)] <-
+    markdown_document2_args
+  markdown_document2_args_merged <- markdown_document2_args_defaults
 
   # Prepare _output.yml
   target_output <- targets::tar_target_raw(
@@ -141,10 +153,7 @@ tar_notebook <- function(
       ymlthis::yml_empty() %>%
         ymlthis::yml_output(
           bookdown::markdown_document2(
-            base_format = "cleanrmd::html_document_clean",
-            theme = !! theme,
-            toc = TRUE,
-            mathjax = "default"
+            !!! markdown_document2_args_merged
           )
         ) %>%
         ymlthis::yml_chuck("output") %>%
