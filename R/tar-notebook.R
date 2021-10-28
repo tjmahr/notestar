@@ -32,11 +32,13 @@ tar_notebook_pages <- function(
 
   values <- lazy_list(
     rmd_file = !! rmds,
-    rmd_page = make.names(basename(.data$rmd_file), unique = TRUE),
+    rmd_page_raw = basename(.data$rmd_file),
+    rmd_page = make.names(.data$rmd_page_raw),
     sym_rmd_page = rlang::syms(.data$rmd_page),
     rmd_deps = lapply(.data$rmd_file, tarchetypes::tar_knitr_deps_expr),
     md_page = rmd_to_md(.data$rmd_page),
-    md_file = file.path(!! dir_md, .data$md_page)
+    md_page_raw = rmd_to_md(.data$rmd_page_raw),
+    md_file = file.path(!! dir_md, .data$md_page_raw)
   )
 
   # Give bookdown an index.Rmd file
