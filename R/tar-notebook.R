@@ -270,7 +270,9 @@ md_to_rmd <- function(x) gsub("[.]md$", ".Rmd", x = x)
 
 knit_page <- function(rmd_in, md_out, helper_script) {
   requireNamespace("knitr")
-  source(helper_script)
+  if (file.exists(helper_script)) {
+    source(helper_script, local = TRUE)
+  }
 
   dir_assets <- file.path(
     "assets",
@@ -278,10 +280,19 @@ knit_page <- function(rmd_in, md_out, helper_script) {
     tools::file_path_sans_ext(basename(rmd_in)),
     "/"
   )
+
+  # Clean out figures
+  if (isTRUE(knitr::opts_knit$get("notestar_purge_figures"))) {
+    if (dir.exists(dir_assets)) {
+      old_files <- list.files(dir_assets, full.names = TRUE, recursive = TRUE)
+      file.remove(old_files)
+    }
+  }
+
   knitr::opts_chunk$set(fig.path = dir_assets)
   knitr::opts_knit$set(base.dir = file.path(dirname(md_out), "/"))
-
   knitr::knit(rmd_in, md_out, encoding = "UTF-8")
+
   md_out
 }
 
