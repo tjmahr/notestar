@@ -1,7 +1,7 @@
 <!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
 
 ```{r setup, include = FALSE}
-# library(ggplot2)
+# library(tidyverse)
 # fit <- targets::tar_read(fit)
 # fit
 ```
