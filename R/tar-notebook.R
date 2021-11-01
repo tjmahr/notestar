@@ -332,7 +332,10 @@ knit_page <- function(rmd_in, md_out, helper_script) {
   knitr::opts_knit$set(base.dir = file.path(dir_base, "/"))
   knitr::knit(rmd_in, md_out, encoding = "UTF-8")
 
-  # New figures
+  # If we do not purge the figures folder beforehand, then there might a
+  # leftover figure file that it is not part of the current results and
+  # therefore cannot be rebuilt. That's why we have the outer condition: We only
+  # track generated figures if we purge the figures folder.
   current_files <- character(0)
   if (isTRUE(knitr::opts_knit$get("notestar_purge_figures"))) {
     if (dir.exists(dir_assets_full)) {
