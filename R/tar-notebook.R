@@ -29,11 +29,11 @@ tar_notebook_pages <- function(
 ) {
 
   rmds <- notebook_rmd_collate(dir_notebook)
-
   values <- lazy_list(
     rmd_file = !! rmds,
     rmd_page_raw = basename(.data$rmd_file),
-    rmd_page = make.names(.data$rmd_page_raw),
+    rmd_page = paste0("entry_", .data$rmd_page_raw) %>%
+      janitor::make_clean_names(),
     sym_rmd_page = rlang::syms(.data$rmd_page),
     rmd_deps = lapply(.data$rmd_file, tarchetypes::tar_knitr_deps_expr),
     md_page = rmd_to_md(.data$rmd_page),
@@ -264,9 +264,17 @@ lazy_list <- function(...) {
 }
 
 
-rmd_to_md <- function(x) gsub("[.]Rmd$", ".md", x = x)
-md_to_rmd <- function(x) gsub("[.]md$", ".Rmd", x = x)
+rmd_to_md <- function(x) {
+  x <- gsub("[.]Rmd$", ".md", x = x)
+  x <- gsub("[_]rmd$", "_md", x = x)
+  x
+}
 
+md_to_rmd <- function(x) {
+  x <- gsub("[.]md$", ".Rmd", x = x)
+  x <- gsub("[_]md$", "_rmd", x = x)
+  x
+}
 
 knit_page <- function(rmd_in, md_out, helper_script) {
   requireNamespace("knitr")

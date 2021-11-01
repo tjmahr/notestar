@@ -34,7 +34,8 @@ Imports:
     here,
     cleanrmd (>= 0.0.7),
     spelling,
-    htmltools
+    htmltools,
+    janitor
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2

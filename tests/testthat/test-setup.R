@@ -1,6 +1,6 @@
 test_that("use_notestar() defaults provide a make-able notebook", {
   create_local_project()
-  was_successful <- notestar::use_notestar()
+  was_successful <- notestar::use_notestar(open = FALSE)
   expect_true(was_successful)
 
   targets::tar_make(reporter = "silent")
