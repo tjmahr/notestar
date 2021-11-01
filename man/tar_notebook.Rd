@@ -26,6 +26,9 @@ file produced by bookdown. Defaults to \code{"docs"}.}
 targets defined elsewhere in the dependencies graph. Defaults to \code{list()}.
 Use this argument, for example, to force a notebook to depend on a \code{.bib}
 file.}
+
+\item{markdown_document2_args}{arguments to pass onto
+\code{\link[bookdown:html_document2]{bookdown::markdown_document2()}}. Defaults to \code{list()}.}
 }
 \value{
 A list of targets.

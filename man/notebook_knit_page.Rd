@@ -13,6 +13,16 @@ notebook_knit_page(rmd_in, md_out, helper_script)
 
 \item{helper_script}{path to an R script to run beforehand}
 }
+\value{
+a character vector where the first element is \code{md_out} and any
+additional elements are plots created during knitting.
+
+Knitting is done in a separate R process via \code{\link[callr:r]{callr::r()}}.
+
+If the option \code{knitr::opts_knit$get("notestar_purge_figures")} is set to
+\code{TRUE}, then the contents of the figures folder will be purged before
+knitting the file.
+}
 \description{
 Knit a single notebook entry
 }

@@ -77,8 +77,8 @@ tar_notebook_pages <- function(
           command = {
             rmd_deps
             sym_rmd_page
-            notebook_knit_page(rmd_file, md_file, notebook_helper);
-            md_file
+            notebook_knit_page(rmd_file, md_file, notebook_helper)
+            # md_file
           },
           format = "file"
         )
@@ -115,6 +115,8 @@ tar_notebook_pages <- function(
 #'   targets defined elsewhere in the dependencies graph. Defaults to `list()`.
 #'   Use this argument, for example, to force a notebook to depend on a `.bib`
 #'   file.
+#' @param markdown_document2_args arguments to pass onto
+#'   [bookdown::markdown_document2()]. Defaults to `list()`.
 #' @return A list of targets.
 #' @export
 #'
@@ -276,6 +278,30 @@ md_to_rmd <- function(x) {
   x
 }
 
+
+#' Knit a single notebook entry
+#'
+#' @export
+#' @keywords internal
+#' @param rmd_in path to the rmd file to knit
+#' @param md_out path to the md file to create
+#' @param helper_script path to an R script to run beforehand
+#' @return a character vector where the first element is `md_out` and any
+#'   additional elements are plots created during knitting.
+#'
+#' Knitting is done in a separate R process via [callr::r()].
+#'
+#' If the option `knitr::opts_knit$get("notestar_purge_figures")` is set to
+#' `TRUE`, then the contents of the figures folder will be purged before
+#' knitting the file.
+notebook_knit_page <- function(rmd_in, md_out, helper_script) {
+  x <- callr::r(
+    knit_page,
+    list(rmd_in = rmd_in, md_out = md_out, helper_script = helper_script)
+  )
+  x
+}
+
 knit_page <- function(rmd_in, md_out, helper_script) {
   requireNamespace("knitr")
   if (file.exists(helper_script)) {
@@ -306,24 +332,21 @@ knit_page <- function(rmd_in, md_out, helper_script) {
   knitr::opts_knit$set(base.dir = file.path(dir_base, "/"))
   knitr::knit(rmd_in, md_out, encoding = "UTF-8")
 
-  md_out
+  # New figures
+  current_files <- character(0)
+  if (isTRUE(knitr::opts_knit$get("notestar_purge_figures"))) {
+    if (dir.exists(dir_assets_full)) {
+      current_files <- list.files(
+        dir_assets_full,
+        full.names = TRUE,
+        recursive = TRUE
+      )
+    }
+  }
+
+  c(md_out, current_files)
 }
 
-
-#' Knit a single notebook entry
-#'
-#' @keywords internal
-#' @param rmd_in path to the rmd file to knit
-#' @param md_out path to the md file to create
-#' @param helper_script path to an R script to run beforehand
-#' @export
-notebook_knit_page <- function(rmd_in, md_out, helper_script) {
-  callr::r(
-    knit_page,
-    list(rmd_in = rmd_in, md_out = md_out, helper_script = helper_script)
-  )
-  md_out
-}
 
 
 #' Write out a yaml-file and return the path
