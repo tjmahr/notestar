@@ -21,16 +21,25 @@ targets_main <- list(
 )
 
 
+
 targets_notebook <- list(
+  tar_notebook_index_rmd(
+    title = "Notebook Title",
+    author = "Author Name",
+    # bibliography = "refs.bib",
+    # csl = "apa.csl",
+    dir_notebook = "{{dir_notebook}}"
+  ),
+
   tar_notebook_pages(
     dir_notebook = "{{dir_notebook}}",
     dir_md = "{{dir_md}}",
     notebook_helper = "{{notebook_helper}}"
   ),
-  # tar_file(notebook_csl_file, "notebook/book/assets/apa.csl"),
-  # tar_file(notebook_bib_file, "notebook/book/assets/refs.bib"),
   tar_notebook(
-    # extra_deps = list(notebook_csl_file, notebook_bib_file)
+    ## we can tell notestar to make the notebook depend on any extra targets by
+    ## creating the targets and passing them through here:
+    # extra_deps = list(...)
   ),
 
   # Remove the following three targets to disable spellchecking
@@ -61,7 +70,4 @@ list(
   targets_main,
   targets_notebook
 )
-
-
-
 

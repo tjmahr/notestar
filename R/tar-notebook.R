@@ -40,9 +40,10 @@ tar_notebook_pages <- function(
     md_page_raw = rmd_to_md(.data$rmd_page_raw),
     md_file = file.path(!! dir_md, .data$md_page_raw)
   )
-
   # Give bookdown an index.Rmd file
   values$md_file[1] <- md_to_rmd(values$md_file[1])
+
+  values_no_index <- lapply(values, function(x) x[-1])
 
   list(
     targets::tar_target_raw(
@@ -103,6 +104,224 @@ tar_notebook_pages <- function(
   )
 }
 
+
+
+
+#' Create index.Rmd file
+#'
+#' This function creates the `index.Rmd` file for the notebook and sets YAML
+#' metadata in the file. It also detects CSL and bibliography file dependencies.
+#'
+#' @param title Title to use for the notebook. Defaults to `"Notebook title"`.
+#' @param author Author name for the notebook. Defaults to `"Author Name"`.
+#'   Multiple authors, email and affiliations can used by using a list `list(name =
+#'   names, email = emails)`. See [ymlthis::yml_author()].
+#' @param bibliography,csl Name of a `.bib` file in the `dir_notebook` rmd folder.
+#'   This file is copied to `[dir_md]/assets/[bibliography]` and saved in the
+#'   YAML metadata in index.Rmd as "./assets/[bibliography]". Defaults to
+#'   [ymlthis::yml_blank()]. This file is then tracked with
+#'   targets and set as a dependency for `tar_notebook()`.
+#' @param csl Name of a `.csl` file in the `dir_notebook` rmd folder.
+#'   This file is copied to `[dir_md]/assets/[csl]` and saved in the
+#'   YAML metadata in index.Rmd as "./assets/[csl]". Defaults to
+#'   [ymlthis::yml_blank()]. This file is then tracked with
+#'   targets and set as a dependency for `tar_notebook()`.
+#' @param ... Additional key-value pairs for setting fields in the yml metadata.
+#'   For example, `subtitle = "Status: Project completed"` would add a subtitle
+#'   to the index.Rmd file and that subtitle would appear in the notebook. These
+#'   fields cannot include `"date"` or `"site"`.
+#' @param .list Alternatively, these YAML fields may be set using a list. Any
+#'   key-value pairs in this list will override options set by arguments. For
+#'   example, an `author` entry in `.list` would override the value in the
+#'   `author` parameter.
+#' @param dir_notebook The notebook directory. Defaults to `"notebook"`.
+#' @return a list of targets:
+#'  - `notebook_bibliography_user`, `notebook_csl_user`: file targets for
+#'    the bibliography and csl files in the `dir_notebook` user folder.
+#'  - `notebook_bibliography_asset`, `notebook_csl_asset`: file targets for
+#'    the bibliography and csl files in the `dir_md` assets folder. These
+#'    command to build these targets to copy them.
+#'  - `notebook_deps_in_index_yml`: a list with the names of asset
+#'    bibliography and asset csl targets if they are present. Can be an
+#'    empty list.
+#'  - `notebook_index_rmd`: file target for the index.Rmd file.
+#'
+#'  If any of these file targets is not used, an empty target `list()` is passed
+#'  along.
+#'
+#' @export
+tar_notebook_index_rmd <- function(
+  title = "Notebook title",
+  author = "Author name",
+  bibliography = ymlthis::yml_blank(),
+  csl = ymlthis::yml_blank(),
+  ...,
+  .list = rlang::list2(...),
+  dir_notebook = "notebook"
+) {
+
+  # Protect reserved yaml fields
+  extra_names <- names(.list)
+  if ("date" %in% extra_names) {
+    d <- usethis::ui_code("date")
+    usethis::ui_stop("{d} field is set when book is built.")
+  }
+  if ("site" %in% extra_names) {
+    d <- usethis::ui_code("site")
+    usethis::ui_stop("{d} field cannot be customized.")
+  }
+
+  # Determine the template to use
+  template_expected <- file.path(dir_notebook, "index.Rmd")
+  template <- if (file.exists(template_expected)) {
+    template_expected
+  } else {
+    usethis::use_template(
+      template = "index.Rmd",
+      save_as = template_expected,
+      package = "notestar"
+    )
+  }
+
+  # Resolve which arguments to use from user
+  data_in_named_args <- list(
+    title = title,
+    author = author,
+    bibliography = bibliography,
+    csl = csl
+  )
+
+  data_args <- data_in_named_args %>%
+    utils::modifyList(.list, keep.null = TRUE)
+
+  data_args$csl_in <- data_args$csl
+  data_args$csl <- path_if_lengthy(data_args$csl, "./assets")
+  data_args$bibliography_in <- data_args$bibliography
+  data_args$bibliography <- path_if_lengthy(data_args$bibliography, "./assets")
+
+  data_in_file <- rmarkdown::yaml_front_matter(template)
+
+  data <- data_in_file %>%
+    utils::modifyList(data_args)
+
+  tar_user_bibliography <- list()
+  tar_asset_bibliography <- list()
+  tar_user_csl <- list()
+  tar_asset_csl <- list()
+  notebook_deps <- list()
+
+  if (length(bibliography) != 0) {
+    tar_user_bibliography <- targets::tar_target_raw(
+      "notebook_bibliography_user",
+      rlang::expr({
+        file.path(
+          !! quote(notebook_config$dir_notebook),
+          !! data$bibliography_in
+        )
+      }),
+      format = "file"
+    )
+
+    tar_asset_bibliography <- targets::tar_target_raw(
+      "notebook_bibliography_asset",
+      rlang::expr({
+        path_out <- file.path(
+          !! quote(notebook_config$dir_md),
+          "assets",
+          !! data$bibliography_in
+        )
+        file.copy(notebook_bibliography_user, path_out)
+        path_out
+      }),
+      format = "file"
+    )
+
+    notebook_deps <- append(notebook_deps, quote(notebook_bibliography_asset))
+  }
+
+  if (length(csl) != 0) {
+    tar_user_csl <- targets::tar_target_raw(
+      "notebook_csl_user",
+      rlang::expr({
+        file.path(
+          !! quote(notebook_config$dir_notebook),
+          !! data$csl_in
+        )
+      }),
+      format = "file"
+    )
+
+    tar_asset_csl <- targets::tar_target_raw(
+      "notebook_csl_asset",
+      rlang::expr({
+        path_out <- file.path(
+          !! quote(notebook_config$dir_md),
+          "assets",
+          !! data$csl_in
+        )
+        file.copy(notebook_csl_user, path_out)
+        path_out
+      }),
+      format = "file"
+    )
+    notebook_deps <- append(notebook_deps, quote(notebook_csl_asset))
+  }
+
+  tar_yml_deps <- targets::tar_target_raw(
+    "notebook_deps_in_index_yml",
+    command = rlang::expr({ !!! notebook_deps })
+  )
+
+
+  yml_header <- ymlthis::as_yml(data) %>%
+    ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) %>%
+    ymlthis::yml_discard("csl_in") %>%
+    ymlthis::yml_discard("bibliography_in")
+
+  tar_index_rmd <- targets::tar_target_raw(
+    "notebook_index_rmd",
+    command = rlang::expr({
+      path_index <- file.path(
+        !! quote(notebook_config$dir_notebook),
+        "index.Rmd"
+      )
+      withr::local_options(list(usethis.overwrite = TRUE))
+      create_file <- ymlthis::use_index_rmd(
+        ymlthis::as_yml(list(!!! yml_header)),
+        template = path_index,
+        path = !! quote(notebook_config$dir_notebook),
+        quiet = TRUE,
+        open_doc = FALSE,
+        include_yaml = FALSE
+      )
+
+      path_index
+    }),
+
+    format = "file"
+  )
+
+  list(
+    tar_asset_bibliography,
+    tar_user_bibliography,
+    tar_asset_csl,
+    tar_user_csl,
+    tar_yml_deps,
+    tar_index_rmd
+  )
+}
+
+
+path_if_lengthy <- function(file, ...) {
+  if (length(file) != 0) {
+    file.path(..., file)
+  } else {
+    file
+  }
+}
+
+
+
 #' Assemble knitted notebook md files into a single-page bookdown document
 #'
 #' @param theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
@@ -113,7 +332,7 @@ tar_notebook_pages <- function(
 #'   file produced by bookdown. Defaults to `"docs"`.
 #' @param extra_deps A list of extra dependencies. These should be the names of
 #'   targets defined elsewhere in the dependencies graph. Defaults to `list()`.
-#'   Use this argument, for example, to force a notebook to depend on a `.bib`
+#'   Use this argument, for example, to force a notebook to depend on a `.css`
 #'   file.
 #' @param markdown_document2_args arguments to pass onto
 #'   [bookdown::markdown_document2()]. Defaults to `list()`.
@@ -216,7 +435,8 @@ tar_notebook <- function(
       other_deps <- list(
         !! rlang::sym("notebook_mds"),
         !! rlang::sym("notebook_bookdown_yaml"),
-        !! rlang::sym("notebook_output_yaml")
+        !! rlang::sym("notebook_output_yaml"),
+        !! rlang::sym("notebook_deps_in_index_yml")
       )
       extra_deps <- !! expr_extra_deps
       rmarkdown::render_site(

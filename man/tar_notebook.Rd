@@ -24,7 +24,7 @@ file produced by bookdown. Defaults to \code{"docs"}.}
 
 \item{extra_deps}{A list of extra dependencies. These should be the names of
 targets defined elsewhere in the dependencies graph. Defaults to \code{list()}.
-Use this argument, for example, to force a notebook to depend on a \code{.bib}
+Use this argument, for example, to force a notebook to depend on a \code{.css}
 file.}
 
 \item{markdown_document2_args}{arguments to pass onto

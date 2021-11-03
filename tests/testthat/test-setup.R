@@ -5,6 +5,17 @@ test_that("use_notestar() defaults provide a make-able notebook", {
 
   targets::tar_make(reporter = "silent")
   expect_true(file.exists("notebook/book/docs/notebook.html"))
+
+  newlines <- gsub(
+    x = readLines("_targets.R"),
+    "title = \"Notebook Title\",",
+    "title = \"My big project\", subtitle = \"testing\","
+  )
+  writeLines(newlines, "_targets.R")
+  readLines("_targets.R")
+  targets::tar_make()
+
+  rmarkdown::yaml_front_matter(targets::tar_read("notebook_index_rmd"))
 })
 
 
