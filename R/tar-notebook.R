@@ -43,6 +43,10 @@ tar_notebook_pages <- function(
   # Give bookdown an index.Rmd file
   values$md_file[1] <- md_to_rmd(values$md_file[1])
 
+  # Need to figure out how to make this happen.
+  # # Link index_rmd to target created by tar_notebook_index_rmd
+  # values$sym_rmd_page[[1]] <- rlang::sym("notebook_index_rmd")
+
   values_no_index <- lapply(values, function(x) x[-1])
 
   list(
@@ -68,7 +72,7 @@ tar_notebook_pages <- function(
       quote(
         targets::tar_target(rmd_page, rmd_file, format = "file")
       ),
-      values = values
+      values = values_no_index
     ),
 
     tarchetypes::tar_eval_raw(
