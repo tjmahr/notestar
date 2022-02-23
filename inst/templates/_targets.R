@@ -6,6 +6,10 @@ library(notestar)
 
 source("R/functions.R")
 
+
+# To modify the three main file locations used by notestar, edit config.yml.
+
+
 tar_option_set(
   packages = c(
     # "tidyverse",
@@ -21,21 +25,14 @@ targets_main <- list(
 )
 
 
-
 targets_notebook <- list(
   tar_notebook_index_rmd(
     title = "Notebook Title",
     author = "Author Name",
     # bibliography = "refs.bib",
-    # csl = "apa.csl",
-    dir_notebook = "{{dir_notebook}}"
+    # csl = "apa.csl"
   ),
-
-  tar_notebook_pages(
-    dir_notebook = "{{dir_notebook}}",
-    dir_md = "{{dir_md}}",
-    notebook_helper = "{{notebook_helper}}"
-  ),
+  tar_notebook_pages(),
   tar_notebook(
     ## we can tell notestar to make the notebook depend on any extra targets by
     ## creating the targets and passing them through here:

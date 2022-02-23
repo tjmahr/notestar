@@ -4,7 +4,15 @@
 #'
 #' @param dir_project file-path to the base/root folder of the project. Defaults to
 #'   `"."` which is the current working directory.
-#' @inheritParams tar_notebook_pages
+#' @param dir_notebook Name of the directory containing the Rmd files. It should
+#'   be a relative path from the project root. Defaults to `"notebook"`
+#' @param dir_md Name of the directory to contain md files (knitted Rmd files).
+#'   It should be a relative path from the project root. Defaults to
+#'   `"notebook/book"`.
+#' @param notebook_helper Filename for an R script to run before knitting each
+#'   Rmd file and rendering the notebook with bookdown. The file must be in
+#'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
+#'   `"notebook/book/knitr_helpers.R`.
 #' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
 #'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
 #'   the code is being called interactively).
@@ -22,11 +30,24 @@ use_notestar <- function(
   notebook_helper = "knitr-helpers.R",
   open = interactive()
 ) {
+
   # set up a project folder
   here::set_here(dir_project, verbose = FALSE)
   usethis::local_project(path = dir_project, quiet = TRUE)
   notebook_file <- function(x) file.path(dir_notebook, x)
   md_file <- function(x) file.path(dir_md, x)
+
+  usethis::use_template(
+    "config.yml",
+    save_as = "config.yml",
+    data = list(
+      dir_notebook = dir_notebook,
+      dir_md = dir_md,
+      notebook_helper = md_file(notebook_helper)
+    ),
+    package = "notestar",
+    open = FALSE
+  )
 
   # R/functions.R
   usethis::use_directory("R")
@@ -34,7 +55,7 @@ use_notestar <- function(
     template = "functions.R",
     save_as = "R/functions.R",
     package = "notestar",
-    open = open
+    open = FALSE
   )
 
   usethis::use_directory(dir_notebook)
@@ -45,7 +66,7 @@ use_notestar <- function(
     template = "index.Rmd",
     save_as = notebook_file("index.Rmd"),
     package = "notestar",
-    open = open
+    open = FALSE
   )
 
   usethis::use_template(
@@ -65,11 +86,6 @@ use_notestar <- function(
   usethis::use_template(
     "_targets.R",
     save_as = "_targets.R",
-    data = list(
-      dir_notebook = dir_notebook,
-      dir_md = dir_md,
-      notebook_helper = md_file(notebook_helper)
-    ),
     package = "notestar",
     open = open
   )

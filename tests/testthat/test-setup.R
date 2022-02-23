@@ -3,6 +3,7 @@ test_that("use_notestar() defaults provide a make-able notebook", {
   was_successful <- notestar::use_notestar(open = FALSE)
   expect_true(was_successful)
 
+  # targets::tar_make()
   targets::tar_make(reporter = "silent")
   expect_true(file.exists("notebook/book/docs/notebook.html"))
 

@@ -9,7 +9,9 @@ tar_notebook(
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
-  markdown_document2_args = list()
+  markdown_document2_args = list(),
+  dir_notebook = NULL,
+  dir_md = NULL
 )
 }
 \arguments{

@@ -1,14 +1,23 @@
+
+tar_notebook_config <- function(
+  dir_notebook = "notebook",
+  dir_md = "notebook/book",
+  notebook_helper = "notebook/book/knitr-helpers.R"
+) {
+  targets::tar_target_raw(
+    "notebook_config",
+    rlang::expr(
+      list(
+        dir_notebook = !! dir_notebook,
+        dir_md = !! dir_md,
+        notebook_helper = !! notebook_helper
+      )
+    )
+  )
+}
+
 #' Create targets to knit notebook Rmd files
 #'
-#' @param dir_notebook Name of the directory containing the Rmd files. It should
-#'   be a relative path from the project root. Defaults to `"notebook"`
-#' @param dir_md Name of the directory to contain md files (knitted Rmd files).
-#'   It should be a relative path from the project root. Defaults to
-#'   `"notebook/book"`.
-#' @param notebook_helper Filename for an R script to run before knitting each
-#'   Rmd file and rendering the notebook with bookdown. The file must be in
-#'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
-#'   `"notebook/book/knitr_helpers.R`.
 #' @return A list of targets.
 #'
 #' @details The list of targets produced includes:
@@ -22,11 +31,19 @@
 #' * `notebook_pages`, a combined target for the output md files.
 #'
 #' @export
+#' @importFrom rlang `%||%`
 tar_notebook_pages <- function(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
-  notebook_helper = "notebook/book/knitr-helpers.R"
+  dir_notebook = NULL,
+  dir_md = NULL,
+  notebook_helper = NULL
 ) {
+  config <- config::get(use_parent = FALSE) |>
+    lapply(getElement, "value")
+  dir_notebook <- dir_notebook %||% config$dir_notebook
+  dir_md <- config$dir_md %||% config$dir_md
+  notebook_helper <- notebook_helper %||% config$notebook_helper
+
+  # f_notebook_helper <- function() notebook_helper
 
   rmds <- notebook_rmd_collate(dir_notebook)
   values <- lazy_list(
@@ -45,28 +62,18 @@ tar_notebook_pages <- function(
 
   # Need to figure out how to make this happen.
   # # Link index_rmd to target created by tar_notebook_index_rmd
-  # values$sym_rmd_page[[1]] <- rlang::sym("notebook_index_rmd")
+  values$sym_rmd_page[[1]] <- rlang::sym("notebook_index_rmd")
+  values$rmd_page[[1]] <- "notebook_index_rmd"
 
   values_no_index <- lapply(values, function(x) x[-1])
 
   list(
-    targets::tar_target_raw(
-      "notebook_config",
-      rlang::expr(
-        list(
-          dir_notebook = !! dir_notebook,
-          dir_md = !! dir_md,
-          notebook_helper = !! notebook_helper
-        )
-      )
-    ),
-
+    # targets::tar_target(notebook_helper, !! f_notebook_helper(), format = "file"),
     targets::tar_target_raw(
       "notebook_helper",
-      quote(notebook_config$notebook_helper),
+      rlang::inject(notebook_helper),
       format = "file"
     ),
-
     # Prepare targets for each of the notebook pages
     tarchetypes::tar_eval_raw(
       quote(
@@ -101,7 +108,7 @@ tar_notebook_pages <- function(
     # Combine them together
     targets::tar_target_raw(
       "notebook_mds",
-      rlang::expr(c(!! values$md_file)),
+      rlang::expr(c(!!! values$md_file)),
       deps = values$md_page,
       format = "file"
     )
@@ -161,8 +168,14 @@ tar_notebook_index_rmd <- function(
   csl = ymlthis::yml_blank(),
   ...,
   .list = rlang::list2(...),
-  dir_notebook = "notebook"
+  dir_notebook = NULL,
+  dir_md = NULL
 ) {
+  # Retrieve the configuration
+  config <- config::get(use_parent = FALSE) |>
+    lapply(getElement, "value")
+  dir_notebook <- dir_notebook %||% config$dir_notebook
+  dir_md <- dir_md %||% config$dir_md
 
   # Protect reserved yaml fields
   extra_names <- names(.list)
@@ -219,7 +232,7 @@ tar_notebook_index_rmd <- function(
       "notebook_bibliography_user",
       rlang::expr({
         file.path(
-          !! quote(notebook_config$dir_notebook),
+          !! dir_notebook,
           !! data$bibliography_in
         )
       }),
@@ -230,7 +243,7 @@ tar_notebook_index_rmd <- function(
       "notebook_bibliography_asset",
       rlang::expr({
         path_out <- file.path(
-          !! quote(notebook_config$dir_md),
+          !! dir_md,
           "assets",
           !! data$bibliography_in
         )
@@ -248,7 +261,7 @@ tar_notebook_index_rmd <- function(
       "notebook_csl_user",
       rlang::expr({
         file.path(
-          !! quote(notebook_config$dir_notebook),
+          !! dir_notebook,
           !! data$csl_in
         )
       }),
@@ -259,7 +272,7 @@ tar_notebook_index_rmd <- function(
       "notebook_csl_asset",
       rlang::expr({
         path_out <- file.path(
-          !! quote(notebook_config$dir_md),
+          !! dir_md,
           "assets",
           !! data$csl_in
         )
@@ -286,14 +299,14 @@ tar_notebook_index_rmd <- function(
     "notebook_index_rmd",
     command = rlang::expr({
       path_index <- file.path(
-        !! quote(notebook_config$dir_notebook),
+        !! dir_notebook,
         "index.Rmd"
       )
       withr::local_options(list(usethis.overwrite = TRUE))
       create_file <- ymlthis::use_index_rmd(
         ymlthis::as_yml(list(!!! yml_header)),
         template = path_index,
-        path = !! quote(notebook_config$dir_notebook),
+        path = !! dir_notebook,
         quiet = TRUE,
         open_doc = FALSE,
         include_yaml = FALSE
@@ -359,8 +372,15 @@ tar_notebook <- function(
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
-  markdown_document2_args = list()
+  markdown_document2_args = list(),
+  dir_notebook = NULL,
+  dir_md = NULL
 ) {
+  # Retrieve the configuration
+  config <- config::get(use_parent = FALSE) |>
+    lapply(getElement, "value")
+  dir_notebook <- dir_notebook %||% config$dir_notebook
+  dir_md <- dir_md %||% config$dir_md
 
   markdown_document2_args_defaults <- lazy_list(
     base_format = "cleanrmd::html_document_clean",
@@ -386,7 +406,7 @@ tar_notebook <- function(
         ymlthis::yml_chuck("output") %>%
         notebook_write_yaml(
           file.path(
-            !! quote(notebook_config$dir_md),
+            !! dir_md,
             "_output.yml"
           )
         )
@@ -423,7 +443,7 @@ tar_notebook <- function(
         ) %>%
         notebook_write_yaml(
           file.path(
-            !! quote(notebook_config$dir_md),
+            !! dir_md,
             "_bookdown.yml"
           )
         )
@@ -444,11 +464,11 @@ tar_notebook <- function(
       )
       extra_deps <- !! expr_extra_deps
       rmarkdown::render_site(
-        !! quote(notebook_config$dir_md),
+        !! dir_md,
         encoding = "UTF-8"
       )
       file.path(
-        !! quote(notebook_config$dir_md),
+        !! dir_md,
         !! subdir_output,
         paste0(!! book_filename, ".html")
       )

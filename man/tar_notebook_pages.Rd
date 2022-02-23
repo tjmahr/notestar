@@ -4,24 +4,7 @@
 \alias{tar_notebook_pages}
 \title{Create targets to knit notebook Rmd files}
 \usage{
-tar_notebook_pages(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
-  notebook_helper = "notebook/book/knitr-helpers.R"
-)
-}
-\arguments{
-\item{dir_notebook}{Name of the directory containing the Rmd files. It should
-be a relative path from the project root. Defaults to \code{"notebook"}}
-
-\item{dir_md}{Name of the directory to contain md files (knitted Rmd files).
-It should be a relative path from the project root. Defaults to
-\code{"notebook/book"}.}
-
-\item{notebook_helper}{Filename for an R script to run before knitting each
-Rmd file and rendering the notebook with bookdown. The file must be in
-\code{dir_md}. Defaults to \code{"knitr-helpers.R"} so the default location is
-\verb{"notebook/book/knitr_helpers.R}.}
+tar_notebook_pages(dir_notebook = NULL, dir_md = NULL, notebook_helper = NULL)
 }
 \value{
 A list of targets.

@@ -11,7 +11,8 @@ tar_notebook_index_rmd(
   csl = ymlthis::yml_blank(),
   ...,
   .list = rlang::list2(...),
-  dir_notebook = "notebook"
+  dir_notebook = NULL,
+  dir_md = NULL
 )
 }
 \arguments{
