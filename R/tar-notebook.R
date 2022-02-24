@@ -72,10 +72,21 @@ tar_notebook_pages <- function() {
   list(
     # targets::tar_target(notebook_helper, !! f_notebook_helper(), format = "file"),
     targets::tar_target_raw(
-      "notebook_helper",
+      "notebook_helper_user",
       rlang::inject(notebook_helper),
       format = "file"
     ),
+
+    targets::tar_target_raw(
+      "notebook_helper",
+      rlang::expr({
+        path_out <- file.path(!! dir_md, basename(notebook_helper_user))
+        file.copy(notebook_helper_user, path_out, overwrite = TRUE)
+        path_out
+      }),
+      format = "file"
+    ),
+
     # Prepare targets for each of the notebook pages
     tarchetypes::tar_eval_raw(
       quote(
@@ -340,8 +351,6 @@ path_if_lengthy <- function(file, ...) {
 
 #' Assemble knitted notebook md files into a single-page bookdown document
 #'
-#' @param theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
-#'   `"water"`.
 #' @param book_filename Name to use for the final html file. Defaults to
 #'   `"notebook"` which produces `"notebook.html"`.
 #' @param subdir_output Subdirectory of `dir_md` which will contain final html
@@ -367,7 +376,6 @@ path_if_lengthy <- function(file, ...) {
 #' The only output format supported is an html file produced by
 #' `cleanrmd::html_document_clean()`.
 tar_notebook <- function(
-  theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
@@ -377,6 +385,7 @@ tar_notebook <- function(
   config <- notebook_config()
   dir_notebook <- config$dir_notebook
   dir_md <- config$dir_md
+  theme <- config$cleanrmd_theme
 
   markdown_document2_args_defaults <- lazy_list(
     base_format = "cleanrmd::html_document_clean",

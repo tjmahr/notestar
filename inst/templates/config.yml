@@ -16,4 +16,9 @@ default:
         path to an R script that is run before knitting each notebook
         entry
       value: "{{notebook_helper}}"
+    cleanrmd_theme:
+      comment: >
+        CSS theme to use for the notebook. Anything printed by
+        cleanrmd::cleanrmd_themes() should work.
+      value: "{{clean_rmd_theme}}"
 ---

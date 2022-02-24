@@ -12,7 +12,9 @@
 #' @param notebook_helper Filename for an R script to run before knitting each
 #'   Rmd file and rendering the notebook with bookdown. The file must be in
 #'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
-#'   `"notebook/book/knitr_helpers.R`.
+#'   `"notebook/knitr_helpers.R`.
+#' @param theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
+#'   `"water"`.
 #' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
 #'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
 #'   the code is being called interactively).
@@ -28,6 +30,7 @@ use_notestar <- function(
   dir_notebook = "notebook",
   dir_md = "notebook/book",
   notebook_helper = "knitr-helpers.R",
+  theme = "water",
   open = interactive()
 ) {
 
@@ -43,7 +46,8 @@ use_notestar <- function(
     data = list(
       dir_notebook = dir_notebook,
       dir_md = dir_md,
-      notebook_helper = md_file(notebook_helper)
+      notebook_helper = notebook_file(notebook_helper),
+      clean_rmd_theme = theme
     ),
     package = "notestar",
     open = FALSE
@@ -71,7 +75,7 @@ use_notestar <- function(
 
   usethis::use_template(
     "knitr-helpers.R",
-    save_as = md_file(notebook_helper),
+    save_as = notebook_file(notebook_helper),
     package = "notestar",
     open = FALSE
   )

@@ -21,10 +21,9 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/tjmahr/notestar/workflows/R-CMD-check/badge.svg)](https://github.com/tjmahr/notestar/actions)
 <!-- badges: end -->
 
-notestar is a notebook system built on the targets package: *notes* with
+notestar is a notebook system built on the
+[targets](https://docs.ropensci.org/targets/) package: *notes* with
 *tar*gets.
-
-**This README and the package are under development.**
 
 ## Installation
 
@@ -41,12 +40,15 @@ Here is an example project/notebook showing how notestar combines
 various .Rmd files into a single HTML file:
 <https://github.com/tjmahr/notestar-demo>.
 
-## A small example
 
-notestar works best inside of a data analysis project and specifically, as a
-part of an RStudio project. That is, we have some directory for our project.
-Everything we do or create will live in that directory, and that directory is
-the default working directory for all of our R code.
+## A worked example
+
+notestar works best inside of a data analysis project and specifically,
+as a part of an [RStudio
+project](https://support.rstudio.com/hc/en-us/articles/200526207-Using-RStudio-Projects).
+That is, we have some directory for our project. Everything we do or
+create will live in that directory, and that directory is the default
+working directory for all of our R code.
 
 For demonstration, let's create a new directory inside of a temporary
 directory and make that the home base for our project.
@@ -69,26 +71,24 @@ fs::dir_tree(all = TRUE)
 
 ### Initial file skeleton
 
-`use_notestar()` will populate the project folder with some boilerplate files.
+`use_notestar()` will populate the project folder with the basic
+skeleton for the project. We set the theme to `"water-dark"` so that the
+screenshots below stick out better from the white background on GitHub.
 
 ```{r}
 library(notestar)
-use_notestar()
-```
+use_notestar(theme = "water-dark")
 
-Now, we have the basic skeleton. 
-
-```{r}
 fs::dir_tree(all = TRUE)
 ```
 
-The file **`config.yml`** is a config-package configuration file. It
-specifies the main folder and file locations for our notebook. Each of
-these is described by a `comment` field.
+The file **`config.yml`** is a
+[config-package](https://rstudio.github.io/config/) configuration file.
+It specifies the main folder and file locations for our notebook. Each
+of these is described by a `comment` field.
 
 ```{r}
-readLines("config.yml") |>
-  writeLines()
+writeLines(readLines("config.yml"))
 ```
 
 Two .Rmd files are automatically included: `index.Rmd` and
@@ -97,8 +97,7 @@ parts) of the notebook. **`index.Rmd`** houses metadata for the
 notebook:
 
 ```{r}
-readLines("notebook/index.Rmd") |>
-  writeLines()
+writeLines(readLines("notebook/index.Rmd"))
 ```
 
 The yaml metadata in `index.Rmd` is created automatically inside the
@@ -109,8 +108,7 @@ provides a "References" heading. When the bibliography is appended to
 the end of the notebook, it will be printed under this heading.
 
 ```{r}
-readLines("notebook/0000-00-00-references.Rmd") |>
-  writeLines()
+writeLines(readLines("notebook/0000-00-00-references.Rmd"))
 ```
 
 The file **`_targets.R`** orchestrates the compilation of the notebook using
@@ -126,9 +124,10 @@ workflow if the target has not been built yet or if the target is out of
 date. Thus, notestar doesn't waste time regenerating earlier entries if
 they or their dependencies have not changed.
 
-Finally, **`.here`** is a sentinel file for the here package. It indicates where the
-project root is located. **`R/functions.R`** is an (as-yet empty) R script that is `source()`-ed
-at the start of `_targets.R`.
+Finally, **`.here`** is a sentinel file for the here package. It
+indicates where the project root is located. **`R/functions.R`** is an
+(as-yet empty) R script that is `source()`-ed at the start of
+`_targets.R`.
 
 ### Building, rebuilding
 
@@ -139,7 +138,7 @@ targets::tar_make()
 ```
 
 If we ask it to build the book again, it skips everything---none of the
-dependencies have changed---but a special spellchecking target set to
+dependencies have changed---but a special spell-checking target set to
 always run.
 
 ```{r}
@@ -172,7 +171,15 @@ There are some md files in `notebook/book/` as well as some
 bookdown-related files (`_bookdown.yml`, `_output.yml` and
 `notebook.rds` file). There is also the output of bookdown in
 `notebook/book/docs`. (`notebook/book/docs/notebook.html` is the file we
-screenshotted earlier.)
+screenshotted earlier.) 
+
+`knitr-helpers.R` was also copied to the `notebook/book/` folder. This
+copying reflects design decision by the package. **Namely, the contents
+of the `notebook/book` folder should not be edited by hand.** Its
+contents should be reproducible whether by regenerating files (like the
+.md files) or by copying files (like `knitr-helpers.R`. The user should
+only have to worry about editing files in the `notebook/` folder or in
+`_targets.R` (or perhaps `config.yml`). 
 
 We can create a new entry from a template using `notebook_create_page()` and
 regenerate the notebook. (A slug is some words we include in the filename to
@@ -181,7 +188,6 @@ help remember what the entry is about.)
 ```{r}
 notebook_create_page(date = "2022-02-22", slug = "hello-world")
 ```
-
 
 Now targets has to rebuild the notebook because there is a new entry
 that needs to be folded in. The network diagram shows that
@@ -326,14 +332,57 @@ This phenomenon, where a change to an .Rmd file would not cause a change
 in the text of a .md file, is the reason for the timestamp at the top of
 the .Rmd file.
 
+### Finer point 1.5: Despite the timestamp, image dependencies are tracked
+
+Our targets graph has a node called `entry_2022_02_22_hello_world_md`. 
+
+```{r}
+targets::tar_visnetwork(
+  targets_only = TRUE, 
+  names = "entry_2022_02_22_hello_world_md"
+)
+```
+
+That node does not represent just the file
+"notebook/book/2022-02-22-hello-world.md". Its plot are also tracked as
+byproducts of the entry:
+
+```{r}
+targets::tar_read("entry_2022_02_22_hello_world_md")
+```
+
+Thus, if I removed the image, that notebook entry becomes outdated and needs
+to be reprocessed.
+
+```{r}
+file.remove(targets::tar_read("entry_2022_02_22_hello_world_md")[2])
+
+targets::tar_visnetwork(
+  targets_only = TRUE, 
+  names = "entry_2022_02_22_hello_world_md"
+)
+```
+
+(I forget the problem that motivated me to add this layer of tracking on
+top of the timestamping, but it's there.) 
+
+```{r, results = "hide"}
+# undo the deletion before moving on
+targets::tar_make()
+#> [output omitted]
+```
+
 
 ### Finer point 2: Unused figures are automatically deleted
 
 What happens when you remove a figure from .Rmd file? Normally, it
 sticks around, and you eventually find yourself with all kinds of old,
 no-longer used figures. When knitting a .Rmd file, notestar removes all
-existing figures associated with an entry beforehand. As a result, only 
+existing figures associated with an entry beforehand. As a result, only
 figures that were created during the most recent knitting are retained.
+This move is what allows image dependencies (see last point) to be
+inferred: If an image file is created as a result of knitting an .Rmd
+file, we can associate it with .md file.
 
 Let's demonstrate this feature. Here are the current notebook assets:
 
