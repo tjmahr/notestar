@@ -36,7 +36,8 @@ Imports:
     spelling,
     htmltools,
     janitor,
-    config
+    config,
+    ragg
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2

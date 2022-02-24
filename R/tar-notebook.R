@@ -16,6 +16,13 @@ tar_notebook_config <- function(
   )
 }
 
+
+notebook_config <- function() {
+  config <- config::get(use_parent = FALSE) |>
+    getElement("notestar") |>
+    lapply(getElement, "value")
+}
+
 #' Create targets to knit notebook Rmd files
 #'
 #' @return A list of targets.
@@ -32,16 +39,11 @@ tar_notebook_config <- function(
 #'
 #' @export
 #' @importFrom rlang `%||%`
-tar_notebook_pages <- function(
-  dir_notebook = NULL,
-  dir_md = NULL,
-  notebook_helper = NULL
-) {
-  config <- config::get(use_parent = FALSE) |>
-    lapply(getElement, "value")
-  dir_notebook <- dir_notebook %||% config$dir_notebook
-  dir_md <- config$dir_md %||% config$dir_md
-  notebook_helper <- notebook_helper %||% config$notebook_helper
+tar_notebook_pages <- function() {
+  config <- notebook_config()
+  dir_notebook <- config$dir_notebook
+  dir_md <- config$dir_md
+  notebook_helper <- config$notebook_helper
 
   # f_notebook_helper <- function() notebook_helper
 
@@ -167,15 +169,12 @@ tar_notebook_index_rmd <- function(
   bibliography = ymlthis::yml_blank(),
   csl = ymlthis::yml_blank(),
   ...,
-  .list = rlang::list2(...),
-  dir_notebook = NULL,
-  dir_md = NULL
+  .list = rlang::list2(...)
 ) {
   # Retrieve the configuration
-  config <- config::get(use_parent = FALSE) |>
-    lapply(getElement, "value")
-  dir_notebook <- dir_notebook %||% config$dir_notebook
-  dir_md <- dir_md %||% config$dir_md
+  config <- notebook_config()
+  dir_notebook <- config$dir_notebook
+  dir_md <- config$dir_md
 
   # Protect reserved yaml fields
   extra_names <- names(.list)
@@ -372,15 +371,12 @@ tar_notebook <- function(
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
-  markdown_document2_args = list(),
-  dir_notebook = NULL,
-  dir_md = NULL
+  markdown_document2_args = list()
 ) {
   # Retrieve the configuration
-  config <- config::get(use_parent = FALSE) |>
-    lapply(getElement, "value")
-  dir_notebook <- dir_notebook %||% config$dir_notebook
-  dir_md <- dir_md %||% config$dir_md
+  config <- notebook_config()
+  dir_notebook <- config$dir_notebook
+  dir_md <- config$dir_md
 
   markdown_document2_args_defaults <- lazy_list(
     base_format = "cleanrmd::html_document_clean",

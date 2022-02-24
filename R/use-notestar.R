@@ -117,8 +117,6 @@ use_notestar_makefile <- function(dir_project = ".") {
 #' @param slug Optional "slug" (label) for the post. Defaults to `""`.
 #' @param date Optional data to use. This date should have the format
 #'   `YYYY-MM-DD`. Defaults to the current date.
-#' @param notebook_dir Optional path to the folder with .Rmd files. Defaults to
-#'   the `notebook_dir` stored in `tar_read(notebook_config)`.
 #' @param open Whether to open the new file for editing. Defaults to
 #'   `rlang::is_interactive()`.
 #' @return Invisible returns the relative path to the created file.
@@ -126,14 +124,10 @@ use_notestar_makefile <- function(dir_project = ".") {
 notebook_create_page <- function(
   slug = NULL,
   date = NULL,
-  notebook_dir = NULL,
   open = TRUE
 ) {
-
-  if (is.null(notebook_dir)) {
-    config <- targets::tar_read_raw("notebook_config")
-    notebook_dir <- config[["dir_notebook"]]
-  }
+  config <- notebook_config()
+  notebook_dir <- config[["dir_notebook"]]
 
   if (is.null(date)) {
     date_data <- Sys.Date()

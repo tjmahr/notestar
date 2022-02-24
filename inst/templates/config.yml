@@ -1,12 +1,19 @@
 ---
 default:
-  dir_notebook:
-    comment: "directory location for user-edited notebook entries"
-    value: "{{dir_notebook}}"
-  dir_md:
-    comment: "directory location for knitted/rendered notebook entries"
-    value: "{{dir_md}}"
-  notebook_helper:
-    comment: "path to an R script that is run before knitting each notebook entry"
-    value: "{{notebook_helper}}"
+  notestar:
+    dir_notebook:
+      comment: >
+        directory location for user-edited notebook entries (as
+        RMarkdown files)
+      value: "{{dir_notebook}}"
+    dir_md:
+      comment: >
+        directory location for knitted/rendered notebook entries
+        (as markdown files)
+      value: "{{dir_md}}"
+    notebook_helper:
+      comment: >
+        path to an R script that is run before knitting each notebook
+        entry
+      value: "{{notebook_helper}}"
 ---
