@@ -37,8 +37,9 @@ devtools::install_github("tjmahr/notestar")
 
 ## A demo notebook
 
-Here is an example project/notebook showing how notestar combines various .Rmd
-into a single HTML file: <https://github.com/tjmahr/notestar-demo>.
+Here is an example project/notebook showing how notestar combines
+various .Rmd files into a single HTML file:
+<https://github.com/tjmahr/notestar-demo>.
 
 ## A small example
 
@@ -47,8 +48,8 @@ part of an RStudio project. That is, we have some directory for our project.
 Everything we do or create will live in that directory, and that directory is
 the default working directory for all of our R code.
 
-Let's create a new directory inside of a temporary directory and make that the
-home base for our project.
+For demonstration, let's create a new directory inside of a temporary
+directory and make that the home base for our project.
 
 ```{r}
 project_dir <- file.path(tempdir(), pattern = "my-project")
@@ -60,12 +61,13 @@ setwd(project_dir)
 knitr::opts_knit$set(root.dir = project_dir)
 ```
 
-
 Nothing here!
 
 ```{r}
 fs::dir_tree(all = TRUE)
 ```
+
+### Initial file skeleton
 
 `use_notestar()` will populate the project folder with some boilerplate files.
 
@@ -80,22 +82,55 @@ Now, we have the basic skeleton.
 fs::dir_tree(all = TRUE)
 ```
 
-These will be documented in detail below, but we
-have a folder `notebook` where we store our notebook entries (as RMarkdown
-files), `notebook/book/` where we store the knitted versions of those entries
-(as markdown files), and `_targets` which orchestrates the compilation of the
-notebook.
+The file **`config.yml`** is a config-package configuration file. It
+specifies the main folder and file locations for our notebook. Each of
+these is described by a `comment` field.
 
-`targets::tar_make()` will then compile the notebook by:
+```{r}
+readLines("config.yml") |>
+  writeLines()
+```
 
-  - knitting each Rmd file in `notebook` *if* necessary
-  - collating the md files in `notebook/book/` into a single-document bookdown
-    book with bookdown/RMarkdown/pandoc (*if* necessary).
+Two .Rmd files are automatically included: `index.Rmd` and
+`0000-00-00.Rmd`. These are the first and last entries (top and bottom
+parts) of the notebook. **`index.Rmd`** houses metadata for the
+notebook:
 
-I say "*if* necessary" because targets only builds targets if the target has not
-been built yet or if the target is out of data. Thus, notestar doesn't waste
-time regenerating earlier entries if they have not changed.
+```{r}
+readLines("notebook/index.Rmd") |>
+  writeLines()
+```
 
+The yaml metadata in `index.Rmd` is created automatically inside the
+`_targets.R` file. More on that later.
+
+**`0000-00-00.Rmd`** is not meant to be edited. As it tells us, it
+provides a "References" heading. When the bibliography is appended to
+the end of the notebook, it will be printed under this heading.
+
+```{r}
+readLines("notebook/0000-00-00-references.Rmd") |>
+  writeLines()
+```
+
+The file **`_targets.R`** orchestrates the compilation of the notebook using
+the targets package. `targets::tar_make()` compiles the notebook by:
+
+  - knitting each .Rmd file in `notebook` *if* necessary to produce a
+    corresponding .md file `notebook/book/`.
+  - collating the .md files in `notebook/book/` into a single-document
+    bookdown book with bookdown/RMarkdown/pandoc (*if* necessary).
+
+I say "*if* necessary" because targets only builds the targets in
+workflow if the target has not been built yet or if the target is out of
+date. Thus, notestar doesn't waste time regenerating earlier entries if
+they or their dependencies have not changed.
+
+Finally, **`.here`** is a sentinel file for the here package. It indicates where the
+project root is located. **`R/functions.R`** is an (as-yet empty) R script that is `source()`-ed
+at the start of `_targets.R`.
+
+### Building, rebuilding
 
 Here we build the notebook and see targets build each target.
 
@@ -103,15 +138,16 @@ Here we build the notebook and see targets build each target.
 targets::tar_make()
 ```
 
-If we ask it to build the book again, it skips everything but a special
-spellchecking target set to always run.
+If we ask it to build the book again, it skips everything---none of the
+dependencies have changed---but a special spellchecking target set to
+always run.
 
 ```{r}
 targets::tar_make()
 ```
 
-Right now, our compiled notebook (`"notebook/book/docs/notebook.html"`) is just
-the title page:
+Right now, our compiled notebook (`"notebook/book/docs/notebook.html"`)
+is just the title page:
 
 ```{r shot1, out.width = "35%", echo = FALSE}
 webshot::webshot(
@@ -129,31 +165,41 @@ If we look at the project tree, we see some additions.
 fs::dir_tree(all = TRUE)
 ```
 
-Briefly, there are some md files in `notebook/book/` as well as some
-bookdown-related files (.yaml files, .rds file). There is also the output of
-bookdown in `notebook/book/docs`. `_targets/` is a new directory. It is the
-object and metadata storage for targets.
+`_targets/` is a new directory. It is the object and metadata storage
+for targets. We don't worry about it.
 
-
+There are some md files in `notebook/book/` as well as some
+bookdown-related files (`_bookdown.yml`, `_output.yml` and
+`notebook.rds` file). There is also the output of bookdown in
+`notebook/book/docs`. (`notebook/book/docs/notebook.html` is the file we
+screenshotted earlier.)
 
 We can create a new entry from a template using `notebook_create_page()` and
 regenerate the notebook. (A slug is some words we include in the filename to
 help remember what the entry is about.)
 
 ```{r}
-notebook_create_page(slug = "hello-world")
+notebook_create_page(date = "2022-02-22", slug = "hello-world")
 ```
 
-Now targets has to rebuild the notebook because there is a new entry that needs
-to be folded in.
 
-```{r}
+Now targets has to rebuild the notebook because there is a new entry
+that needs to be folded in. The network diagram shows that
+`entry_2022_02_hello_world_rmd` is outdated (blue) so everything
+downstream from it is also outdated.
+
+```{r network1, dpi = 300}
+targets::tar_visnetwork(targets_only = TRUE)
+```
+
+
+When we rebuild the notebook, that entry now appears in 
+the HTML file.
+
+```{r shot2, out.width = "35%", echo = 1:2, results = "hide"}
 targets::tar_make()
-```
+#> [output omitted]
 
-That entry appears in the notebook.
-
-```{r shot2, out.width = "35%", echo = FALSE}
 webshot::webshot(
   "notebook/book/docs/notebook.html",
   file = "shot2.png",
@@ -163,38 +209,162 @@ webshot::webshot(
 )
 ```
 
+#### Next steps
+
 From here, we go with the flow. We use targets as we normally would, modifying
 `R/functions.R` and `targets.R` to set up our data-processing pipeline. We can
 now use our notebook to do reporting and exploration as part of our
 data-processing pipeline. Things we make with targets can be `tar_read()` into
 our notebook entries and tracked as dependencies.
 
+
+
+### Finer point 1: .Rmd/.md files have hidden timestamps
+
+Here is what a minimal Rmd file entry looks like:
+
+```{r}
+writeLines(readLines("notebook/2022-02-22-hello-world.Rmd"))
+```
+
+That first `<!--- comment --->` line on top is an HTML comment. It will
+not be displayed when we view the final html file, but when the .Rmd file is knitted to produce the
+corresponding .md, the timestamp will be updated. Here is the first line
+of that .md file:
+
+```{r}
+writeLines(readLines("notebook/book/2022-02-22-hello-world.md")[1])
+```
+
+This timestamp allows us to mark a notebook entry as outdated even if
+none of the text in the .md file has changed. Here is a motivating
+example. Let's append a code chunk to the bottom of the notebook entry.
+It will plot a histogram.
+
+```{r}
+entry_v0 <- readLines("notebook/2022-02-22-hello-world.Rmd")[1:13]
+writeLines(
+  c(
+    entry_v0,
+    "Would you look at all these 4's?",
+    "```{r old-faithful, fig.width = 4, fig.height = 4}",
+    "hist(faithful$eruptions)",
+    "```"
+  ),
+  "notebook/2022-02-22-hello-world.Rmd"
+)
+```
+
+And then we regenerate the notebook.
+
+
+```{r shot3, out.width = "35%", echo = 1:2, results = "hide"}
+targets::tar_make()
+#> [output omitted]
+
+webshot::webshot(
+  "notebook/book/docs/notebook.html",  
+  file = "shot3.png",
+  vwidth = 400, 
+  vheight = 400,
+  zoom = 2
+)
+```
+
+Let's store the current .md file lines so we can compare it to a later
+version.
+
+```{r}
+entry_v1 <- readLines("notebook/book/2022-02-22-hello-world.md")
+```
+
+Now, suppose we wanted to change size or resolution of the plot. In this case, 
+we will change the `fig.width` and `fig.height` values to 6 here.
+
+```{r}
+writeLines(
+  c(
+    entry_v0,
+    "Would you look at all these 4's?",
+    "```{r old-faithful, fig.width = 6, fig.height = 6}",
+    "hist(faithful$eruptions)",
+    "```"
+  ),
+  "notebook/2022-02-22-hello-world.Rmd"
+)
+```
+
+And then we regenerate the notebook.
+
+```{r shot4, out.width = "35%", echo = 1:2, results = "hide"}
+targets::tar_make()
+#> [output omitted]
+
+webshot::webshot(
+  "notebook/book/docs/notebook.html",  
+  file = "shot4.png",
+  vwidth = 400, 
+  vheight = 400,
+  zoom = 2
+)
+```
+
+
+So now the figures image files have definitely changed. They are
+different sizes. The text in the plots in the two screenshots are
+different sizes. But the text of the .md files is the same---except for
+the timestamp.
+
+```{r}
+entry_v2 <- readLines("notebook/book/2022-02-22-hello-world.md")
+entry_v1 == entry_v2
+entry_v1[1] 
+entry_v2[1]
+```
+
+This phenomenon, where a change to an .Rmd file would not cause a change
+in the text of a .md file, is the reason for the timestamp at the top of
+the .Rmd file.
+
+
+### Finer point 2: Unused figures are automatically deleted
+
+What happens when you remove a figure from .Rmd file? Normally, it
+sticks around, and you eventually find yourself with all kinds of old,
+no-longer used figures. When knitting a .Rmd file, notestar removes all
+existing figures associated with an entry beforehand. As a result, only 
+figures that were created during the most recent knitting are retained.
+
+Let's demonstrate this feature. Here are the current notebook assets:
+
+```{r}
+fs::dir_tree("./notebook/book/assets")
+```
+
+We will restore the original version of the entry so that the plot is no
+longer created.
+
+```{r, results = "hide"}
+writeLines(entry_v0, "notebook/2022-02-22-hello-world.Rmd")
+
+targets::tar_make()
+#> [output omitted]
+```
+
+What we have now is an empty folder.
+
+```{r}
+fs::dir_tree("./notebook/book/assets")
+```
+
+
+
+
+
 ```{r, echo = FALSE}
 knitr::opts_knit$set(root.dir = NULL)
 ```
 
-
-
-
 ## How it all works [todo]
 
 targets + bookdown + some tricks
-
-```{r, eval = FALSE}
-fs::dir_tree(path = project_dir, all = TRUE)
-```
-
-  - `.here` is a sentinel file for the here package. It indicates where the
-    project root is located.
-  - `notebook/` houses the .Rmd files that become entries in the notebook. By
-    default, it includes `index.Rmd` (a bookdown title page) and
-    `0000-00-00-references.Rmd` (an entry for a pandoc bibliography provided at
-    the end/bottom of the notebook).
-  - `notebook/book/` houses the knitted versions of the `.Rmd` entries and a
-    timestamped version of the `index.Rmd`. There is a special file here
-    `knitr-helpers.R` which is run before the Rmd -\> md and before the md -\>
-    notebook stage. `assets/` is where knitted images go and where other assets
-    to include go.
-  - `_targets.R` stores the workflow for building the notebook.
-  - `R/functions.R` creates
-
