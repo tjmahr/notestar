@@ -13,7 +13,7 @@
 #'   Rmd file and rendering the notebook with bookdown. The file must be in
 #'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
 #'   `"notebook/knitr_helpers.R`.
-#' @param theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
+#' @param cleanrmd_theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
 #'   `"water"`.
 #' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
 #'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
@@ -30,7 +30,7 @@ use_notestar <- function(
   dir_notebook = "notebook",
   dir_md = "notebook/book",
   notebook_helper = "knitr-helpers.R",
-  theme = "water",
+  cleanrmd_theme = "water",
   open = interactive()
 ) {
 
@@ -47,7 +47,7 @@ use_notestar <- function(
       dir_notebook = dir_notebook,
       dir_md = dir_md,
       notebook_helper = notebook_file(notebook_helper),
-      clean_rmd_theme = theme
+      clean_rmd_theme = cleanrmd_theme
     ),
     package = "notestar",
     open = FALSE

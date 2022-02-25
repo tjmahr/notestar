@@ -5,19 +5,13 @@
 \title{Assemble knitted notebook md files into a single-page bookdown document}
 \usage{
 tar_notebook(
-  theme = "water",
   book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
-  markdown_document2_args = list(),
-  dir_notebook = NULL,
-  dir_md = NULL
+  markdown_document2_args = list()
 )
 }
 \arguments{
-\item{theme}{Theme to use for \code{cleanrmd::html_document_clean()}. Defaults to
-\code{"water"}.}
-
 \item{book_filename}{Name to use for the final html file. Defaults to
 \code{"notebook"} which produces \code{"notebook.html"}.}
 

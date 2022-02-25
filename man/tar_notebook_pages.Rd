@@ -4,7 +4,7 @@
 \alias{tar_notebook_pages}
 \title{Create targets to knit notebook Rmd files}
 \usage{
-tar_notebook_pages(dir_notebook = NULL, dir_md = NULL, notebook_helper = NULL)
+tar_notebook_pages()
 }
 \value{
 A list of targets.
