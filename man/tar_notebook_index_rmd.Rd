@@ -19,15 +19,15 @@ tar_notebook_index_rmd(
 \item{author}{Author name for the notebook. Defaults to \code{"Author Name"}.
 Multiple authors, email and affiliations can used by using a list \code{list(name = names, email = emails)}. See \code{\link[ymlthis:yml_author]{ymlthis::yml_author()}}.}
 
-\item{bibliography, csl}{Name of a \code{.bib} file in the \code{dir_notebook} rmd folder.
+\item{bibliography}{Name of a \code{.bib} file in the \code{dir_notebook} rmd folder.
 This file is copied to \verb{[dir_md]/assets/[bibliography]} and saved in the
-YAML metadata in index.Rmd as "./assets/\link{bibliography}". Defaults to
+YAML metadata in index.Rmd as \code{"./assets/[bibliography]"}. Defaults to
 \code{\link[ymlthis:yml_blank]{ymlthis::yml_blank()}}. This file is then tracked with
 targets and set as a dependency for \code{tar_notebook()}.}
 
 \item{csl}{Name of a \code{.csl} file in the \code{dir_notebook} rmd folder.
 This file is copied to \verb{[dir_md]/assets/[csl]} and saved in the
-YAML metadata in index.Rmd as "./assets/\link{csl}". Defaults to
+YAML metadata in index.Rmd as \code{"./assets/[csl]"}. Defaults to
 \code{\link[ymlthis:yml_blank]{ymlthis::yml_blank()}}. This file is then tracked with
 targets and set as a dependency for \code{tar_notebook()}.}
 
@@ -40,8 +40,6 @@ fields cannot include \code{"date"} or \code{"site"}.}
 key-value pairs in this list will override options set by arguments. For
 example, an \code{author} entry in \code{.list} would override the value in the
 \code{author} parameter.}
-
-\item{dir_notebook}{The notebook directory. Defaults to \code{"notebook"}.}
 }
 \value{
 a list of targets:

@@ -1,22 +1,4 @@
 
-tar_notebook_config <- function(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
-  notebook_helper = "notebook/book/knitr-helpers.R"
-) {
-  targets::tar_target_raw(
-    "notebook_config",
-    rlang::expr(
-      list(
-        dir_notebook = !! dir_notebook,
-        dir_md = !! dir_md,
-        notebook_helper = !! notebook_helper
-      )
-    )
-  )
-}
-
-
 notebook_config <- function() {
   config <- config::get(use_parent = FALSE) |>
     getElement("notestar") |>
@@ -69,6 +51,8 @@ tar_notebook_pages <- function() {
 
   values_no_index <- lapply(values, function(x) x[-1])
 
+  sym_notebook_helper_user <- rlang::sym("notebook_helper_user")
+
   list(
     # targets::tar_target(notebook_helper, !! f_notebook_helper(), format = "file"),
     targets::tar_target_raw(
@@ -80,8 +64,8 @@ tar_notebook_pages <- function() {
     targets::tar_target_raw(
       "notebook_helper",
       rlang::expr({
-        path_out <- file.path(!! dir_md, basename(notebook_helper_user))
-        file.copy(notebook_helper_user, path_out, overwrite = TRUE)
+        path_out <- file.path(!! dir_md, basename(!! sym_notebook_helper_user))
+        file.copy(!! sym_notebook_helper_user, path_out, overwrite = TRUE)
         path_out
       }),
       format = "file"
@@ -140,14 +124,14 @@ tar_notebook_pages <- function() {
 #' @param author Author name for the notebook. Defaults to `"Author Name"`.
 #'   Multiple authors, email and affiliations can used by using a list `list(name =
 #'   names, email = emails)`. See [ymlthis::yml_author()].
-#' @param bibliography,csl Name of a `.bib` file in the `dir_notebook` rmd folder.
+#' @param bibliography Name of a `.bib` file in the `dir_notebook` rmd folder.
 #'   This file is copied to `[dir_md]/assets/[bibliography]` and saved in the
-#'   YAML metadata in index.Rmd as "./assets/[bibliography]". Defaults to
+#'   YAML metadata in index.Rmd as `"./assets/[bibliography]"`. Defaults to
 #'   [ymlthis::yml_blank()]. This file is then tracked with
 #'   targets and set as a dependency for `tar_notebook()`.
 #' @param csl Name of a `.csl` file in the `dir_notebook` rmd folder.
 #'   This file is copied to `[dir_md]/assets/[csl]` and saved in the
-#'   YAML metadata in index.Rmd as "./assets/[csl]". Defaults to
+#'   YAML metadata in index.Rmd as `"./assets/[csl]"`. Defaults to
 #'   [ymlthis::yml_blank()]. This file is then tracked with
 #'   targets and set as a dependency for `tar_notebook()`.
 #' @param ... Additional key-value pairs for setting fields in the yml metadata.
@@ -158,7 +142,6 @@ tar_notebook_pages <- function() {
 #'   key-value pairs in this list will override options set by arguments. For
 #'   example, an `author` entry in `.list` would override the value in the
 #'   `author` parameter.
-#' @param dir_notebook The notebook directory. Defaults to `"notebook"`.
 #' @return a list of targets:
 #'  - `notebook_bibliography_user`, `notebook_csl_user`: file targets for
 #'    the bibliography and csl files in the `dir_notebook` user folder.
@@ -238,6 +221,8 @@ tar_notebook_index_rmd <- function(
   notebook_deps <- list()
 
   if (length(bibliography) != 0) {
+    sym_notebook_bibliography_user <- rlang::sym("notebook_bibliography_user")
+
     tar_user_bibliography <- targets::tar_target_raw(
       "notebook_bibliography_user",
       rlang::expr({
@@ -257,7 +242,7 @@ tar_notebook_index_rmd <- function(
           "assets",
           !! data$bibliography_in
         )
-        file.copy(notebook_bibliography_user, path_out)
+        file.copy(!! sym_notebook_bibliography_user, path_out)
         path_out
       }),
       format = "file"
@@ -267,6 +252,8 @@ tar_notebook_index_rmd <- function(
   }
 
   if (length(csl) != 0) {
+    sym_notebook_csl_user <- rlang::sym("notebook_csl_user")
+
     tar_user_csl <- targets::tar_target_raw(
       "notebook_csl_user",
       rlang::expr({
@@ -286,7 +273,7 @@ tar_notebook_index_rmd <- function(
           "assets",
           !! data$csl_in
         )
-        file.copy(notebook_csl_user, path_out)
+        file.copy(!! sym_notebook_csl_user, path_out)
         path_out
       }),
       format = "file"
@@ -298,7 +285,6 @@ tar_notebook_index_rmd <- function(
     "notebook_deps_in_index_yml",
     command = rlang::expr({ !!! notebook_deps })
   )
-
 
   yml_header <- ymlthis::as_yml(data) %>%
     ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) %>%
@@ -351,8 +337,6 @@ path_if_lengthy <- function(file, ...) {
 
 #' Assemble knitted notebook md files into a single-page bookdown document
 #'
-#' @param book_filename Name to use for the final html file. Defaults to
-#'   `"notebook"` which produces `"notebook.html"`.
 #' @param subdir_output Subdirectory of `dir_md` which will contain final html
 #'   file produced by bookdown. Defaults to `"docs"`.
 #' @param extra_deps A list of extra dependencies. These should be the names of
@@ -376,7 +360,7 @@ path_if_lengthy <- function(file, ...) {
 #' The only output format supported is an html file produced by
 #' `cleanrmd::html_document_clean()`.
 tar_notebook <- function(
-  book_filename = "notebook",
+  # book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
   markdown_document2_args = list()
@@ -386,6 +370,7 @@ tar_notebook <- function(
   dir_notebook <- config$dir_notebook
   dir_md <- config$dir_md
   theme <- config$cleanrmd_theme
+  book_filename <- config$notebook_filename
 
   markdown_document2_args_defaults <- lazy_list(
     base_format = "cleanrmd::html_document_clean",
@@ -409,12 +394,7 @@ tar_notebook <- function(
           )
         ) %>%
         ymlthis::yml_chuck("output") %>%
-        notebook_write_yaml(
-          file.path(
-            !! dir_md,
-            "_output.yml"
-          )
-        )
+        notebook_write_yaml(file.path(!! dir_md, "_output.yml"))
     }),
     format = "file"
   )
@@ -455,7 +435,6 @@ tar_notebook <- function(
     }),
     format = "file"
   )
-
 
   expr_extra_deps <- rlang::enexpr(extra_deps)
   target_notebook <- targets::tar_target_raw(

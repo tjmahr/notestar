@@ -5,16 +5,12 @@
 \title{Assemble knitted notebook md files into a single-page bookdown document}
 \usage{
 tar_notebook(
-  book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
   markdown_document2_args = list()
 )
 }
 \arguments{
-\item{book_filename}{Name to use for the final html file. Defaults to
-\code{"notebook"} which produces \code{"notebook.html"}.}
-
 \item{subdir_output}{Subdirectory of \code{dir_md} which will contain final html
 file produced by bookdown. Defaults to \code{"docs"}.}
 

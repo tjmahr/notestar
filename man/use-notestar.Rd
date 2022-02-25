@@ -11,6 +11,7 @@ use_notestar(
   dir_md = "notebook/book",
   notebook_helper = "knitr-helpers.R",
   cleanrmd_theme = "water",
+  notebook_filename = "notebook",
   open = interactive()
 )
 
@@ -34,6 +35,9 @@ Rmd file and rendering the notebook with bookdown. The file must be in
 
 \item{cleanrmd_theme}{Theme to use for \code{cleanrmd::html_document_clean()}. Defaults to
 \code{"water"}.}
+
+\item{notebook_filename}{Name to use for the final html file. Defaults to
+\code{"notebook"} which produces \code{"notebook.html"}.}
 
 \item{open}{whether to open \verb{_targets.R}, \code{notebook/index.Rmd}, and
 \code{R/functions.R} when they are created. Defaults to \code{interactive()} (whether

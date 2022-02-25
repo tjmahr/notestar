@@ -7,8 +7,6 @@ library(notestar)
 source("R/functions.R")
 
 
-# To modify the three main file locations used by notestar, edit config.yml.
-
 
 tar_option_set(
   packages = c(
@@ -25,6 +23,8 @@ targets_main <- list(
 )
 
 
+# To modify the notebook theme or the locations of the files used by notestar,
+# edit config.yml.
 targets_notebook <- list(
   tar_notebook_index_rmd(
     title = "Notebook Title",
@@ -43,11 +43,8 @@ targets_notebook <- list(
   # or add new exceptions here
   tar_target(
     spellcheck_exceptions,
-    c(
-      # need a placeholder word so that tests work
-      "tibble"
-      # add new exceptions here
-    )
+    # add new exceptions here
+    c("tibble")
   ),
 
   tar_target(
@@ -67,4 +64,3 @@ list(
   targets_main,
   targets_notebook
 )
-

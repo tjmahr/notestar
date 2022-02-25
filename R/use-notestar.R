@@ -15,6 +15,8 @@
 #'   `"notebook/knitr_helpers.R`.
 #' @param cleanrmd_theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
 #'   `"water"`.
+#' @param notebook_filename Name to use for the final html file. Defaults to
+#'   `"notebook"` which produces `"notebook.html"`.
 #' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
 #'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
 #'   the code is being called interactively).
@@ -31,6 +33,7 @@ use_notestar <- function(
   dir_md = "notebook/book",
   notebook_helper = "knitr-helpers.R",
   cleanrmd_theme = "water",
+  notebook_filename = "notebook",
   open = interactive()
 ) {
 
@@ -47,7 +50,8 @@ use_notestar <- function(
       dir_notebook = dir_notebook,
       dir_md = dir_md,
       notebook_helper = notebook_file(notebook_helper),
-      clean_rmd_theme = cleanrmd_theme
+      cleanrmd_theme = cleanrmd_theme,
+      notebook_filename = notebook_filename
     ),
     package = "notestar",
     open = FALSE

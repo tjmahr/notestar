@@ -6,19 +6,6 @@ test_that("use_notestar() defaults provide a make-able notebook", {
   expect_false(file.exists("notebook/book/docs/notebook.html"))
   capture_output(targets::tar_make(reporter = "silent"))
   expect_true(file.exists("notebook/book/docs/notebook.html"))
-
-  # targets::tar_built()
-  # targets::tar_outdated("notebook")
-#
-#   newlines <- gsub(
-#     x = readLines("_targets.R"),
-#     "title = \"Notebook Title\",",
-#     "title = \"My big project\", subtitle = \"testing\","
-#   )
-#   targets::tar_make(reporter = "silent")
-#   readLines("notebook/index.Rmd")
-#   readLines("notebook/book/index.Rmd")
-#   rmarkdown::yaml_front_matter(targets::tar_read("notebook_index_rmd"))
 })
 
 
@@ -28,6 +15,7 @@ test_that("use_notestar() paths are customizable", {
     dir_notebook = "pages",
     dir_md = "book",
     notebook_helper = "knitr-helpers.R",
+    notebook_filename = "notes",
     open = FALSE
   )
   expect_true(was_successful)
@@ -38,13 +26,12 @@ test_that("use_notestar() paths are customizable", {
   expect_equal(config$notebook_helper, "pages/knitr-helpers.R")
 
   capture_output(targets::tar_make(reporter = "silent"))
-  expect_true(file.exists("book/docs/notebook.html"))
+  expect_true(file.exists("book/docs/notes.html"))
 })
 
 
 test_that("can track/purge generated figures", {
   skip_if_not_installed("ragg")
-
 
   entry <- "
 <!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
@@ -101,13 +88,13 @@ plot(faithful)
   expect_true("notebook" %in% outdated)
 
   # notebook is current again
-  targets::tar_make(reporter = "silent")
+  capture_output(targets::tar_make(reporter = "silent"))
   outdated <- targets::tar_outdated(reporter = "silent")
   expect_false("notebook" %in% outdated)
 
   # plot is not part of notebook
   writeLines(new_entry, "notebook/2021-01-01-plot.Rmd")
-  targets::tar_make(reporter = "silent")
+  capture_output(targets::tar_make(reporter = "silent"))
 
   outdated <- targets::tar_outdated(reporter = "silent")
   expect_false("notebook" %in% outdated)
@@ -126,38 +113,14 @@ plot(faithful)
 
 
 test_that("index.Rmd can be customized", {
-  skip("later")
+  skip("to do")
 })
 
 test_that("index.Rmd can be customized (bib file)", {
-  skip("later")
+  skip("to do")
 })
 
 test_that("index.Rmd can be customized (csl file)", {
-  skip("later")
+  skip("to do")
 })
 
-
-test_that("rmd collations works as expected", {
-  skip("wait until others pass")
-  rmds <- c("notebook/index.Rmd",  "notebook/0000-00-00-references.Rmd")
-  dir_md <- "notebook/book/"
-  values <- lazy_list(
-    rmd_file = !! rmds,
-    rmd_page_raw = basename(.data$rmd_file),
-    rmd_page = paste0("entry_", .data$rmd_page_raw) %>%
-      janitor::make_clean_names(),
-    sym_rmd_page = rlang::syms(.data$rmd_page),
-    md_page = rmd_to_md(.data$rmd_page),
-    md_page_raw = rmd_to_md(.data$rmd_page_raw),
-    md_file = file.path(!! dir_md, .data$md_page_raw)
-  )
-  expect_equal(
-    values$rmd_page,
-    c("entry_index_rmd", "entry_0000_00_00_references_rmd")
-  )
-  expect_equal(
-    values$md_page,
-    c("entry_index_md", "entry_0000_00_00_references_md")
-  )
-})

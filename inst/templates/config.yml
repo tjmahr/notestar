@@ -20,5 +20,10 @@ default:
       comment: >
         CSS theme to use for the notebook. Anything printed by
         cleanrmd::cleanrmd_themes() should work.
-      value: "{{clean_rmd_theme}}"
+      value: "{{cleanrmd_theme}}"
+    notebook_filename:
+      comment: >
+        Name to use for the final html file. Defaults to "notebook"
+        which produces "notebook.html"
+      value: "{{notebook_filename}}"
 ---
