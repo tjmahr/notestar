@@ -37,7 +37,9 @@ Imports:
     htmltools,
     janitor,
     config,
-    ragg
+    ragg,
+    utils,
+    crayon
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2

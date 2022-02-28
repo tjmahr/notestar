@@ -15,12 +15,13 @@ Create targets to knit notebook Rmd files
 \details{
 The list of targets produced includes:
 \itemize{
-\item \code{notebook_helper}, a file for the helper R script.
+\item \code{notebook_helper_user}, a file for the user's helper R script.
+\item \code{notebook_helper}, a mirrored copy of the \code{notebook_helper_user}
 \item one file target for each input Rmd file. Any targets used
 with \code{tar_read()} or \code{tar_load()} inside these files are detected
 and checked for changes.
 \item one file target for each output md file.
-\item \code{notebook_rmds}, a combined target for the input Rmd files.
-\item \code{notebook_pages}, a combined target for the output md files.
+\item \code{notebook_rmds}, a combined target for the input .Rmd files.
+\item \code{notebook_mds}, a combined target for the output .md files.
 }
 }

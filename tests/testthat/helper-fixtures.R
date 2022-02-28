@@ -24,3 +24,11 @@ create_local_project <- function(
   usethis::proj_set(dir, force = TRUE)
   invisible(dir)
 }
+
+
+tar_make_quietly <- function(..., reporter = "silent") {
+  output <- testthat::capture_output(
+    targets::tar_make(..., reporter = reporter)
+  )
+  invisible(output)
+}

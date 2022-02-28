@@ -9,6 +9,7 @@ tar_notebook_index_rmd(
   author = "Author name",
   bibliography = ymlthis::yml_blank(),
   csl = ymlthis::yml_blank(),
+  index_rmd_body_lines = "",
   ...,
   .list = rlang::list2(...)
 )
@@ -30,6 +31,9 @@ This file is copied to \verb{[dir_md]/assets/[csl]} and saved in the
 YAML metadata in index.Rmd as \code{"./assets/[csl]"}. Defaults to
 \code{\link[ymlthis:yml_blank]{ymlthis::yml_blank()}}. This file is then tracked with
 targets and set as a dependency for \code{tar_notebook()}.}
+
+\item{index_rmd_body_lines}{optional character vector to use for body text in
+\code{index.Rmd}. Defaults to \code{""}.}
 
 \item{...}{Additional key-value pairs for setting fields in the yml metadata.
 For example, \code{subtitle = "Status: Project completed"} would add a subtitle

@@ -1,9 +1,11 @@
 
+
 notebook_config <- function() {
   config <- config::get(use_parent = FALSE) |>
     getElement("notestar") |>
     lapply(getElement, "value")
 }
+
 
 #' Create targets to knit notebook Rmd files
 #'
@@ -11,50 +13,55 @@ notebook_config <- function() {
 #'
 #' @details The list of targets produced includes:
 #'
-#' * `notebook_helper`, a file for the helper R script.
+#' * `notebook_helper_user`, a file for the user's helper R script.
+#' * `notebook_helper`, a mirrored copy of the `notebook_helper_user`
 #' * one file target for each input Rmd file. Any targets used
 #'   with `tar_read()` or `tar_load()` inside these files are detected
 #'   and checked for changes.
 #' * one file target for each output md file.
-#' * `notebook_rmds`, a combined target for the input Rmd files.
-#' * `notebook_pages`, a combined target for the output md files.
+#' * `notebook_rmds`, a combined target for the input .Rmd files.
+#' * `notebook_mds`, a combined target for the output .md files.
 #'
 #' @export
-#' @importFrom rlang `%||%`
 tar_notebook_pages <- function() {
   config <- notebook_config()
   dir_notebook <- config$dir_notebook
   dir_md <- config$dir_md
   notebook_helper <- config$notebook_helper
 
-  # f_notebook_helper <- function() notebook_helper
-
-  rmds <- notebook_rmd_collate(dir_notebook)
+  # For every notebook entry (rmd_file)
+  # - get the basename (rmd_page_raw) and derive the
+  #   corresponding .md file's basename(md_page)
+  # - derive legal target names from the basename for the file (rmd_page) and
+  #   for the corresponding .md file (md_page_raw)
+  # - create a symbol to use in the R code analyzed by targets (sym_rmd_page)
+  # - identify the dependencies inside of each file (rmd_deps)
+  # - derive the final path for .md file
   values <- lazy_list(
-    rmd_file = !! rmds,
+    rmd_file = notebook_rmd_collate(!! dir_notebook),
     rmd_page_raw = basename(.data$rmd_file),
+    md_page_raw = rmd_to_md(.data$rmd_page_raw),
     rmd_page = paste0("entry_", .data$rmd_page_raw) %>%
       janitor::make_clean_names(),
+    md_page = rmd_to_md(.data$rmd_page),
     sym_rmd_page = rlang::syms(.data$rmd_page),
     rmd_deps = lapply(.data$rmd_file, tarchetypes::tar_knitr_deps_expr),
-    md_page = rmd_to_md(.data$rmd_page),
-    md_page_raw = rmd_to_md(.data$rmd_page_raw),
     md_file = file.path(!! dir_md, .data$md_page_raw)
   )
-  # Give bookdown an index.Rmd file
+
+  # index.Rmd gets knitted when the notebook is assembled so that
+  # it has a timestamp for when the whole notebook was assembled. So its .md file
+  # should be a .Rmd file.
   values$md_file[1] <- md_to_rmd(values$md_file[1])
 
-  # Need to figure out how to make this happen.
-  # # Link index_rmd to target created by tar_notebook_index_rmd
+  # And index.Rmd is actually created by a different target so we need to
+  # use that target name
   values$sym_rmd_page[[1]] <- rlang::sym("notebook_index_rmd")
   values$rmd_page[[1]] <- "notebook_index_rmd"
 
   values_no_index <- lapply(values, function(x) x[-1])
 
-  sym_notebook_helper_user <- rlang::sym("notebook_helper_user")
-
   list(
-    # targets::tar_target(notebook_helper, !! f_notebook_helper(), format = "file"),
     targets::tar_target_raw(
       "notebook_helper_user",
       rlang::inject(notebook_helper),
@@ -64,14 +71,15 @@ tar_notebook_pages <- function() {
     targets::tar_target_raw(
       "notebook_helper",
       rlang::expr({
-        path_out <- file.path(!! dir_md, basename(!! sym_notebook_helper_user))
-        file.copy(!! sym_notebook_helper_user, path_out, overwrite = TRUE)
+        path_out <- file.path(!! dir_md, basename(!! notebook_helper))
+        file.copy(!! notebook_helper, path_out, overwrite = TRUE)
         path_out
       }),
+      deps = "notebook_helper_user",
       format = "file"
     ),
 
-    # Prepare targets for each of the notebook pages
+    # Each Rmd file is a file target
     tarchetypes::tar_eval_raw(
       quote(
         targets::tar_target(rmd_page, rmd_file, format = "file")
@@ -79,6 +87,7 @@ tar_notebook_pages <- function() {
       values = values_no_index
     ),
 
+    # Prepare targets for each of the md files
     tarchetypes::tar_eval_raw(
       quote(
         targets::tar_target(
@@ -87,7 +96,6 @@ tar_notebook_pages <- function() {
             rmd_deps
             sym_rmd_page
             notebook_knit_page(rmd_file, md_file, notebook_helper)
-            # md_file
           },
           format = "file"
         )
@@ -95,14 +103,14 @@ tar_notebook_pages <- function() {
       values = values
     ),
 
-    # Combine them together
+    # Bundle the rmd files together (e.g., for spell-checking)
     targets::tar_target_raw(
       "notebook_rmds",
       rlang::expr(c(!!! values$sym_rmd_page)),
       deps = values$rmd_page
     ),
 
-    # Combine them together
+    # Bundle the md files together (for notebook assembly)
     targets::tar_target_raw(
       "notebook_mds",
       rlang::expr(c(!!! values$md_file)),
@@ -111,8 +119,6 @@ tar_notebook_pages <- function() {
     )
   )
 }
-
-
 
 
 #' Create index.Rmd file
@@ -134,6 +140,8 @@ tar_notebook_pages <- function() {
 #'   YAML metadata in index.Rmd as `"./assets/[csl]"`. Defaults to
 #'   [ymlthis::yml_blank()]. This file is then tracked with
 #'   targets and set as a dependency for `tar_notebook()`.
+#' @param index_rmd_body_lines optional character vector to use for body text in
+#'   `index.Rmd`. Defaults to `""`.
 #' @param ... Additional key-value pairs for setting fields in the yml metadata.
 #'   For example, `subtitle = "Status: Project completed"` would add a subtitle
 #'   to the index.Rmd file and that subtitle would appear in the notebook. These
@@ -162,6 +170,7 @@ tar_notebook_index_rmd <- function(
   author = "Author name",
   bibliography = ymlthis::yml_blank(),
   csl = ymlthis::yml_blank(),
+  index_rmd_body_lines = "",
   ...,
   .list = rlang::list2(...)
 ) {
@@ -181,18 +190,6 @@ tar_notebook_index_rmd <- function(
     usethis::ui_stop("{d} field cannot be customized.")
   }
 
-  # Determine the template to use
-  template_expected <- file.path(dir_notebook, "index.Rmd")
-  template <- if (file.exists(template_expected)) {
-    template_expected
-  } else {
-    usethis::use_template(
-      template = "index.Rmd",
-      save_as = template_expected,
-      package = "notestar"
-    )
-  }
-
   # Resolve which arguments to use from user
   data_in_named_args <- list(
     title = title,
@@ -201,6 +198,9 @@ tar_notebook_index_rmd <- function(
     csl = csl
   )
 
+  # Overwrite individual arguments with the values from .list if they are
+  # present, e.g. prefer "blah" in this situation
+  #     `title = "default", .list = list(title = "blah")`
   data_args <- data_in_named_args %>%
     utils::modifyList(.list, keep.null = TRUE)
 
@@ -209,16 +209,25 @@ tar_notebook_index_rmd <- function(
   data_args$bibliography_in <- data_args$bibliography
   data_args$bibliography <- path_if_lengthy(data_args$bibliography, "./assets")
 
+  # Finally, plug in any defaults from the package template
+  template <- system.file("templates/index.Rmd", package = "notestar")
   data_in_file <- rmarkdown::yaml_front_matter(template)
-
   data <- data_in_file %>%
-    utils::modifyList(data_args)
+    utils::modifyList(data_args) %>%
+    utils::modifyList(list(index_rmd_body_lines = index_rmd_body_lines))
 
+
+  tar_index_rmd_body <- list()
   tar_user_bibliography <- list()
   tar_asset_bibliography <- list()
   tar_user_csl <- list()
   tar_asset_csl <- list()
   notebook_deps <- list()
+
+  tar_index_yaml_data <- targets::tar_target_raw(
+    "notebook_index_yml",
+    rlang::expr(list(!!! data))
+  )
 
   if (length(bibliography) != 0) {
     sym_notebook_bibliography_user <- rlang::sym("notebook_bibliography_user")
@@ -228,7 +237,7 @@ tar_notebook_index_rmd <- function(
       rlang::expr({
         file.path(
           !! dir_notebook,
-          !! data$bibliography_in
+          !! notebook_index_yml$bibliography_in
         )
       }),
       format = "file"
@@ -240,7 +249,7 @@ tar_notebook_index_rmd <- function(
         path_out <- file.path(
           !! dir_md,
           "assets",
-          !! data$bibliography_in
+          !! notebook_index_yml$bibliography_in
         )
         file.copy(!! sym_notebook_bibliography_user, path_out)
         path_out
@@ -259,7 +268,7 @@ tar_notebook_index_rmd <- function(
       rlang::expr({
         file.path(
           !! dir_notebook,
-          !! data$csl_in
+          !! notebook_index_yml$csl_in
         )
       }),
       format = "file"
@@ -271,7 +280,7 @@ tar_notebook_index_rmd <- function(
         path_out <- file.path(
           !! dir_md,
           "assets",
-          !! data$csl_in
+          !! notebook_index_yml$csl_in
         )
         file.copy(!! sym_notebook_csl_user, path_out)
         path_out
@@ -286,28 +295,23 @@ tar_notebook_index_rmd <- function(
     command = rlang::expr({ !!! notebook_deps })
   )
 
-  yml_header <- ymlthis::as_yml(data) %>%
-    ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) %>%
-    ymlthis::yml_discard("csl_in") %>%
-    ymlthis::yml_discard("bibliography_in")
-
   tar_index_rmd <- targets::tar_target_raw(
     "notebook_index_rmd",
     command = rlang::expr({
-      path_index <- file.path(
-        !! dir_notebook,
-        "index.Rmd"
-      )
-      withr::local_options(list(usethis.overwrite = TRUE))
-      create_file <- ymlthis::use_index_rmd(
-        ymlthis::as_yml(list(!!! yml_header)),
-        template = path_index,
-        path = !! dir_notebook,
-        quiet = TRUE,
-        open_doc = FALSE,
-        include_yaml = FALSE
-      )
+      yml_header <- ymlthis::as_yml(notebook_index_yml) %>%
+        ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) %>%
+        ymlthis::yml_discard("csl_in") %>%
+        ymlthis::yml_discard("bibliography_in") %>%
+        ymlthis::yml_discard("index_rmd_body_lines")
 
+      path_index <- file.path(!! dir_notebook, "index.Rmd")
+
+      lines <- c(
+        crayon::strip_style(capture.output(print(yml_header))),
+        "",
+        notebook_index_yml$index_rmd_body_lines
+      )
+      writeLines(lines, path_index)
       path_index
     }),
 
@@ -315,6 +319,7 @@ tar_notebook_index_rmd <- function(
   )
 
   list(
+    tar_index_yaml_data,
     tar_asset_bibliography,
     tar_user_bibliography,
     tar_asset_csl,
@@ -483,7 +488,23 @@ notebook_rmd_collate <- function(dir_notebook = "notebook") {
   c(index, rev(posts))
 }
 
-
+#' A list where expressions are evaluated sequentially and can
+#' refer to earlier defined list entries
+#' @param ... named expressions (key = value or key = expression). Tidy
+#'   evaluation is supported.
+#' @return the list with the expressions evaluated
+#' @noRd
+#' @keywords internal
+#' @examples
+#' value <- 0
+#' lazy_list(
+#'   a = 10,
+#'   b = a + 1,
+#'   value = 10,
+#'   # rlang's data-masking rules apply
+#'   value_data = value + 1,
+#'   value_env = .env$value + 1
+#' )
 lazy_list <- function(...) {
   q <- rlang::enexprs(..., .named = TRUE, .check_assign = TRUE)
   data <- list()
