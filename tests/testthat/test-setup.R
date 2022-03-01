@@ -47,6 +47,8 @@ test_that("changing config.yml theme should outdate notebook", {
 
 test_that("notesstar can track/purge generated figures", {
   skip_if_not_installed("ragg")
+  skip_on_os("mac")
+  skip_on_os("linux")
 
   entry <- "
   <!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
