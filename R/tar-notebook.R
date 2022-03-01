@@ -1,3 +1,4 @@
+utils::globalVariables("notebook_index_yml")
 
 
 notebook_config <- function() {
