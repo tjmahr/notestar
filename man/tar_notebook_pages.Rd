@@ -4,24 +4,7 @@
 \alias{tar_notebook_pages}
 \title{Create targets to knit notebook Rmd files}
 \usage{
-tar_notebook_pages(
-  dir_notebook = "notebook",
-  dir_md = "notebook/book",
-  notebook_helper = "notebook/book/knitr-helpers.R"
-)
-}
-\arguments{
-\item{dir_notebook}{Name of the directory containing the Rmd files. It should
-be a relative path from the project root. Defaults to \code{"notebook"}}
-
-\item{dir_md}{Name of the directory to contain md files (knitted Rmd files).
-It should be a relative path from the project root. Defaults to
-\code{"notebook/book"}.}
-
-\item{notebook_helper}{Filename for an R script to run before knitting each
-Rmd file and rendering the notebook with bookdown. The file must be in
-\code{dir_md}. Defaults to \code{"knitr-helpers.R"} so the default location is
-\verb{"notebook/book/knitr_helpers.R}.}
+tar_notebook_pages()
 }
 \value{
 A list of targets.
@@ -32,12 +15,13 @@ Create targets to knit notebook Rmd files
 \details{
 The list of targets produced includes:
 \itemize{
-\item \code{notebook_helper}, a file for the helper R script.
+\item \code{notebook_helper_user}, a file for the user's helper R script.
+\item \code{notebook_helper}, a mirrored copy of the \code{notebook_helper_user}
 \item one file target for each input Rmd file. Any targets used
 with \code{tar_read()} or \code{tar_load()} inside these files are detected
 and checked for changes.
 \item one file target for each output md file.
-\item \code{notebook_rmds}, a combined target for the input Rmd files.
-\item \code{notebook_pages}, a combined target for the output md files.
+\item \code{notebook_rmds}, a combined target for the input .Rmd files.
+\item \code{notebook_mds}, a combined target for the output .md files.
 }
 }

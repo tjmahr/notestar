@@ -5,26 +5,18 @@
 \title{Assemble knitted notebook md files into a single-page bookdown document}
 \usage{
 tar_notebook(
-  theme = "water",
-  book_filename = "notebook",
   subdir_output = "docs",
   extra_deps = list(),
   markdown_document2_args = list()
 )
 }
 \arguments{
-\item{theme}{Theme to use for \code{cleanrmd::html_document_clean()}. Defaults to
-\code{"water"}.}
-
-\item{book_filename}{Name to use for the final html file. Defaults to
-\code{"notebook"} which produces \code{"notebook.html"}.}
-
 \item{subdir_output}{Subdirectory of \code{dir_md} which will contain final html
 file produced by bookdown. Defaults to \code{"docs"}.}
 
 \item{extra_deps}{A list of extra dependencies. These should be the names of
 targets defined elsewhere in the dependencies graph. Defaults to \code{list()}.
-Use this argument, for example, to force a notebook to depend on a \code{.bib}
+Use this argument, for example, to force a notebook to depend on a \code{.css}
 file.}
 
 \item{markdown_document2_args}{arguments to pass onto

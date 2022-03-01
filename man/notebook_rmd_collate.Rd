@@ -6,10 +6,6 @@
 \usage{
 notebook_rmd_collate(dir_notebook = "notebook")
 }
-\arguments{
-\item{dir_notebook}{Name of the directory containing the Rmd files. It should
-be a relative path from the project root. Defaults to \code{"notebook"}}
-}
 \value{
 a vector of paths to rmd files
 }

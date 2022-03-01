@@ -4,21 +4,13 @@
 \alias{notebook_create_page}
 \title{Create a new notebook page}
 \usage{
-notebook_create_page(
-  slug = NULL,
-  date = NULL,
-  notebook_dir = NULL,
-  open = TRUE
-)
+notebook_create_page(slug = NULL, date = NULL, open = TRUE)
 }
 \arguments{
 \item{slug}{Optional "slug" (label) for the post. Defaults to \code{""}.}
 
 \item{date}{Optional data to use. This date should have the format
 \code{YYYY-MM-DD}. Defaults to the current date.}
-
-\item{notebook_dir}{Optional path to the folder with .Rmd files. Defaults to
-the \code{notebook_dir} stored in \code{tar_read(notebook_config)}.}
 
 \item{open}{Whether to open the new file for editing. Defaults to
 \code{rlang::is_interactive()}.}

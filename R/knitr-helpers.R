@@ -16,6 +16,13 @@ notebook_set_opts_knit <- function() {
 #' @rdname set_knitr_opts
 #' @export
 notebook_set_opts_chunk <- function() {
+  if (rlang::is_installed("ragg")) {
+    dev <- "ragg_png"
+  } else {
+    rlang::inform("ragg is not installed. Using default knitr device.")
+    dev <- NULL
+  }
+
   defaults <- list(
     echo = FALSE,
     collapse = TRUE,
@@ -25,7 +32,7 @@ notebook_set_opts_chunk <- function() {
     fig.width = 6,
     fig.height = 4,
     dpi = 300,
-    dev = "ragg_png"
+    dev = dev
   )
   knitr::opts_chunk$set(defaults)
   defaults

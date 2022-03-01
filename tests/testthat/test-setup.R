@@ -1,78 +1,96 @@
 test_that("use_notestar() defaults provide a make-able notebook", {
   create_local_project()
-  was_successful <- notestar::use_notestar(open = FALSE)
+  was_successful <- use_notestar(open = FALSE)
   expect_true(was_successful)
 
-  targets::tar_make(reporter = "silent")
+  expect_false(file.exists("notebook/book/docs/notebook.html"))
+  tar_make_quietly()
   expect_true(file.exists("notebook/book/docs/notebook.html"))
 })
 
 
-
 test_that("use_notestar() paths are customizable", {
   create_local_project()
-  was_successful <- notestar::use_notestar(
+  was_successful <- use_notestar(
     dir_notebook = "pages",
     dir_md = "book",
     notebook_helper = "knitr-helpers.R",
+    notebook_filename = "notes",
     open = FALSE
   )
   expect_true(was_successful)
 
-  targets::tar_make("notebook_config", reporter = "silent")
-  config <- targets::tar_read("notebook_config")
+  config <- notebook_config()
   expect_equal(config$dir_notebook, "pages")
   expect_equal(config$dir_md, "book")
-  expect_equal(config$notebook_helper, "book/knitr-helpers.R")
+  expect_equal(config$notebook_helper, "pages/knitr-helpers.R")
 
-  targets::tar_make(reporter = "silent")
-  expect_true(file.exists("book/docs/notebook.html"))
+  tar_make_quietly()
+  expect_true(file.exists("pages/knitr-helpers.R"))
+  expect_true(file.exists("book/docs/notes.html"))
 })
 
 
-test_that("can track/purge generated figures", {
+test_that("changing config.yml theme should outdate notebook", {
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+  tar_make_quietly()
+
+  yaml_in <- yaml::read_yaml("config.yml")
+  yaml_in$default$notestar$cleanrmd_theme$value <- "sakura-vader"
+  yaml::write_yaml(yaml_in, "config.yml")
+
+  outdated <- targets::tar_outdated()
+  expect_true("notebook" %in% outdated)
+})
+
+
+test_that("notesstar can track/purge generated figures", {
   skip_if_not_installed("ragg")
 
   entry <- "
-<!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
+  <!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
 
-## Demo entry
+  ## Demo entry
 
-<small>Source: <code>`r knitr::current_input()`</code></small>
+  <small>Source: <code>`r knitr::current_input()`</code></small>
 
-```{r faithful}
-plot(faithful)
-```
-"
+  ```{r faithful}
+  plot(faithful)
+  ```
+  "
+  entry <- gsub("\\n  ", "\n", entry)
+
   new_entry <- "
-<!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
+  <!--- Timestamp to trigger book rebuilds: `r Sys.time()` --->
 
-## Demo entry
+  ## Demo entry
 
-<small>Source: <code>`r knitr::current_input()`</code></small>
+  <small>Source: <code>`r knitr::current_input()`</code></small>
 
-```{r faithful}
-# plot(faithful)
-```
-"
+  ```{r faithful}
+  # plotting code removed
+  ```
+  "
+  new_entry <- gsub("\\n  ", "\n", new_entry)
 
   create_local_project()
-  was_successful <- notestar::use_notestar(open = FALSE)
+  was_successful <- use_notestar(open = FALSE)
 
-  # create a notebook with the plot
+  # Create a notebook with the plot
   writeLines(entry, "notebook/2021-01-01-plot.Rmd")
-  targets::tar_make(reporter = "silent")
+  tar_make_quietly()
 
-  # notebook is current
+  # Notebook is current
   outdated <- targets::tar_outdated(reporter = "silent")
   expect_false("entry_2021_01_01_plot_md" %in% outdated)
 
-  # plot landed where it was expected
+  # Plot landed where it was expected
   expect_true(
     file.exists("notebook/book/assets/figure/2021-01-01-plot/faithful-1.png")
   )
 
-  # plot is being tracked
+  # Plot is being tracked
   expect_equal(
     targets::tar_read("entry_2021_01_01_plot_md"),
     c(
@@ -81,30 +99,25 @@ plot(faithful)
     )
   )
 
-  # notebook depends on plot file
+  # Notebook depends on plot file
   file.remove("notebook/book/assets/figure/2021-01-01-plot/faithful-1.png")
   outdated <- targets::tar_outdated(reporter = "silent")
   expect_true("entry_2021_01_01_plot_md" %in% outdated)
   expect_true("notebook" %in% outdated)
 
-  # notebook is current again
-  targets::tar_make(reporter = "silent")
-  outdated <- targets::tar_outdated(reporter = "silent")
-  expect_false("notebook" %in% outdated)
+  # Restore the notebook and plot
+  tar_make_quietly()
 
-  # plot is not part of notebook
+  # Update entry to remove the plot
   writeLines(new_entry, "notebook/2021-01-01-plot.Rmd")
-  targets::tar_make(reporter = "silent")
+  capture_output(targets::tar_make(reporter = "silent"))
 
-  outdated <- targets::tar_outdated(reporter = "silent")
-  expect_false("notebook" %in% outdated)
-
-  # plot purged
+  # Plot has been removed
   expect_false(
     file.exists("notebook/book/assets/figure/2021-01-01-plot/faithful-1.png")
   )
 
-  # plot is not being tracked
+  # Plot is not being tracked
   expect_equal(
     targets::tar_read("entry_2021_01_01_plot_md"),
     "notebook/book/2021-01-01-plot.md"
@@ -112,25 +125,82 @@ plot(faithful)
 })
 
 
-test_that("rmd collations works as expected", {
-  rmds <- c("notebook/index.Rmd",  "notebook/0000-00-00-references.Rmd")
-  dir_md <- "notebook/book/"
-  values <- lazy_list(
-    rmd_file = !! rmds,
-    rmd_page_raw = basename(.data$rmd_file),
-    rmd_page = paste0("entry_", .data$rmd_page_raw) %>%
-      janitor::make_clean_names(),
-    sym_rmd_page = rlang::syms(.data$rmd_page),
-    md_page = rmd_to_md(.data$rmd_page),
-    md_page_raw = rmd_to_md(.data$rmd_page_raw),
-    md_file = file.path(!! dir_md, .data$md_page_raw)
+test_that("index.Rmd can be customized", {
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+
+  tar_make_quietly()
+  old_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+
+  writeLines(
+    gsub(
+      "title = .*,",
+      "title = \"Test title\", subtitle = \"another test\",",
+      readLines("_targets.R")
+    ),
+    "_targets.R"
   )
-  expect_equal(
-    values$rmd_page,
-    c("entry_index_rmd", "entry_0000_00_00_references_rmd")
+
+  expect_true(
+    all(c("notebook_index_rmd", "notebook") %in% targets::tar_outdated())
   )
-  expect_equal(
-    values$md_page,
-    c("entry_index_md", "entry_0000_00_00_references_md")
+
+  tar_make_quietly()
+  new_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+
+  expect_equal(new_yaml$subtitle, "another test")
+  expect_false(old_yaml$title == new_yaml$subtitle)
+})
+
+
+test_that("index.Rmd can be customized (references)", {
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+  use_notestar_references()
+  tar_make_quietly()
+
+  old_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+  old_assets <- list.files("notebook/book/assets/")
+  expect_length(old_assets, 0)
+
+  writeLines(
+    gsub(
+      "# bibliography = \"refs.bib\"",
+      "bibliography = \"refs.bib\"",
+      readLines("_targets.R")
+    ),
+    "_targets.R"
   )
+
+  writeLines(
+    gsub(
+      "# csl = \"apa.csl\"",
+      "csl = \"apa.csl\"",
+      readLines("_targets.R")
+    ),
+    "_targets.R"
+  )
+
+  tar_make_quietly()
+  new_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+  new_assets <- list.files("notebook/book/assets/")
+
+  expect_length(new_assets, 2)
+  expect_equal(new_yaml$csl, "./assets/apa.csl")
+  expect_equal(new_yaml$bibliography, "./assets/refs.bib")
+
+  # Modifying the references should outdate notebook
+  expect_false("notebook" %in% targets::tar_outdated())
+
+  writeLines(
+    gsub(
+      "@Manual.R.base,",
+      "@Manual{R-base-entry,",
+      readLines("./notebook/refs.bib")
+    ),
+    "./notebook/refs.bib"
+  )
+  outdated <- targets::tar_outdated()
+  expect_true("notebook" %in% outdated)
+  expect_true("notebook_bibliography_asset" %in% outdated)
 })

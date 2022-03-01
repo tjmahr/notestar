@@ -6,6 +6,8 @@ library(notestar)
 
 source("R/functions.R")
 
+
+
 tar_option_set(
   packages = c(
     # "tidyverse",
@@ -21,27 +23,31 @@ targets_main <- list(
 )
 
 
+# To modify the notebook theme or the locations of the files used by notestar,
+# edit config.yml.
 targets_notebook <- list(
-  tar_notebook_pages(
-    dir_notebook = "{{dir_notebook}}",
-    dir_md = "{{dir_md}}",
-    notebook_helper = "{{notebook_helper}}"
+  tar_notebook_index_rmd(
+    title = "Notebook Title",
+    author = "Author Name",
+    ## notestar::use_notestar_references() will provide these files
+    ## in the notebook folder. then uncomment these lines and modify
+    ## files as needed:
+    # bibliography = "refs.bib",
+    # csl = "apa.csl"
   ),
-  # tar_file(notebook_csl_file, "notebook/book/assets/apa.csl"),
-  # tar_file(notebook_bib_file, "notebook/book/assets/refs.bib"),
+  tar_notebook_pages(),
   tar_notebook(
-    # extra_deps = list(notebook_csl_file, notebook_bib_file)
+    ## We can tell notestar to make the notebook depend on any extra targets by
+    ## creating the targets and passing them through here:
+    # extra_deps = list(...)
   ),
 
   # Remove the following three targets to disable spellchecking
   # or add new exceptions here
   tar_target(
     spellcheck_exceptions,
-    c(
-      # need a placeholder word so that tests work
-      "tibble"
-      # add new exceptions here
-    )
+    # add new exceptions here
+    c("tibble")
   ),
 
   tar_target(
@@ -61,7 +67,3 @@ list(
   targets_main,
   targets_notebook
 )
-
-
-
-

@@ -1,0 +1,29 @@
+---
+default:
+  notestar:
+    dir_notebook:
+      comment: >
+        directory location for user-edited notebook entries (as
+        RMarkdown files)
+      value: "{{dir_notebook}}"
+    dir_md:
+      comment: >
+        directory location for knitted/rendered notebook entries
+        (as markdown files)
+      value: "{{dir_md}}"
+    notebook_helper:
+      comment: >
+        path to an R script that is run before knitting each notebook
+        entry
+      value: "{{notebook_helper}}"
+    cleanrmd_theme:
+      comment: >
+        CSS theme to use for the notebook. Anything printed by
+        cleanrmd::cleanrmd_themes() should work.
+      value: "{{cleanrmd_theme}}"
+    notebook_filename:
+      comment: >
+        Name to use for the final html file. Defaults to "notebook"
+        which produces "notebook.html"
+      value: "{{notebook_filename}}"
+---

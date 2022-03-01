@@ -4,7 +4,5 @@ author: "Author Name"
 date: > 
   `r knitr::inline_expr('format(Sys.time(), "Updated on %A, %B %d, %Y %I:%M %p")')`
 site: bookdown::bookdown_site
-# bibliography: ./assets/refs.bib
-# csl: ./assets/apa.csl
 link-citations: true
 ---

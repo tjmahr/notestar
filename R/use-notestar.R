@@ -4,7 +4,19 @@
 #'
 #' @param dir_project file-path to the base/root folder of the project. Defaults to
 #'   `"."` which is the current working directory.
-#' @inheritParams tar_notebook_pages
+#' @param dir_notebook Name of the directory containing the Rmd files. It should
+#'   be a relative path from the project root. Defaults to `"notebook"`
+#' @param dir_md Name of the directory to contain md files (knitted Rmd files).
+#'   It should be a relative path from the project root. Defaults to
+#'   `"notebook/book"`.
+#' @param notebook_helper Filename for an R script to run before knitting each
+#'   Rmd file and rendering the notebook with bookdown. The file must be in
+#'   `dir_md`. Defaults to `"knitr-helpers.R"` so the default location is
+#'   `"notebook/knitr_helpers.R`.
+#' @param cleanrmd_theme Theme to use for `cleanrmd::html_document_clean()`. Defaults to
+#'   `"water"`.
+#' @param notebook_filename Name to use for the final html file. Defaults to
+#'   `"notebook"` which produces `"notebook.html"`.
 #' @param open whether to open `_targets.R`, `notebook/index.Rmd`, and
 #'   `R/functions.R` when they are created. Defaults to `interactive()` (whether
 #'   the code is being called interactively).
@@ -13,6 +25,9 @@
 #' `use_notestar_makefile()` creates a Makefile that will build or clean a
 #' targets-based workflow.
 #'
+#' `use_notestar_references()` adds the files `"refs.bib"` and `"apa.csl"` to
+#' `dir_notebook`.
+#'
 #' @export
 #' @rdname use-notestar
 use_notestar <- function(
@@ -20,13 +35,30 @@ use_notestar <- function(
   dir_notebook = "notebook",
   dir_md = "notebook/book",
   notebook_helper = "knitr-helpers.R",
+  cleanrmd_theme = "water",
+  notebook_filename = "notebook",
   open = interactive()
 ) {
+
   # set up a project folder
   here::set_here(dir_project, verbose = FALSE)
   usethis::local_project(path = dir_project, quiet = TRUE)
   notebook_file <- function(x) file.path(dir_notebook, x)
   md_file <- function(x) file.path(dir_md, x)
+
+  usethis::use_template(
+    "config.yml",
+    save_as = "config.yml",
+    data = list(
+      dir_notebook = dir_notebook,
+      dir_md = dir_md,
+      notebook_helper = notebook_file(notebook_helper),
+      cleanrmd_theme = cleanrmd_theme,
+      notebook_filename = notebook_filename
+    ),
+    package = "notestar",
+    open = FALSE
+  )
 
   # R/functions.R
   usethis::use_directory("R")
@@ -34,7 +66,7 @@ use_notestar <- function(
     template = "functions.R",
     save_as = "R/functions.R",
     package = "notestar",
-    open = open
+    open = FALSE
   )
 
   usethis::use_directory(dir_notebook)
@@ -45,12 +77,12 @@ use_notestar <- function(
     template = "index.Rmd",
     save_as = notebook_file("index.Rmd"),
     package = "notestar",
-    open = open
+    open = FALSE
   )
 
   usethis::use_template(
     "knitr-helpers.R",
-    save_as = md_file(notebook_helper),
+    save_as = notebook_file(notebook_helper),
     package = "notestar",
     open = FALSE
   )
@@ -65,11 +97,6 @@ use_notestar <- function(
   usethis::use_template(
     "_targets.R",
     save_as = "_targets.R",
-    data = list(
-      dir_notebook = dir_notebook,
-      dir_md = dir_md,
-      notebook_helper = md_file(notebook_helper)
-    ),
     package = "notestar",
     open = open
   )
@@ -94,6 +121,40 @@ use_notestar_makefile <- function(dir_project = ".") {
 }
 
 
+#' @export
+#' @rdname use-notestar
+use_notestar_references <- function(dir_project = ".") {
+  usethis::local_project(path = dir_project, quiet = FALSE)
+  config <- notebook_config()
+
+  usethis::use_template(
+    "refs.bib",
+    file.path(config$dir_notebook, "refs.bib"),
+    package = "notestar"
+  )
+
+  usethis::use_template(
+    "apa.csl",
+    file.path(config$dir_notebook, "apa.csl"),
+    package = "notestar"
+  )
+
+  usethis::ui_todo(
+    paste(
+      "In", usethis::ui_path("_targets.R"),
+      "add these lines to the",
+      usethis::ui_code("tar_notebook_index_rmd()"),
+      "call:"
+    )
+  )
+
+  usethis::ui_code_block(c(
+    "bibliography = \"refs.bib\",",
+    "    csl = \"apa.csl\""
+  ))
+}
+
+
 #' Create a new notebook page
 #'
 #' Creates a file with pattern `[notebook_dir]/[date][-slug].Rmd`.
@@ -101,8 +162,6 @@ use_notestar_makefile <- function(dir_project = ".") {
 #' @param slug Optional "slug" (label) for the post. Defaults to `""`.
 #' @param date Optional data to use. This date should have the format
 #'   `YYYY-MM-DD`. Defaults to the current date.
-#' @param notebook_dir Optional path to the folder with .Rmd files. Defaults to
-#'   the `notebook_dir` stored in `tar_read(notebook_config)`.
 #' @param open Whether to open the new file for editing. Defaults to
 #'   `rlang::is_interactive()`.
 #' @return Invisible returns the relative path to the created file.
@@ -110,14 +169,10 @@ use_notestar_makefile <- function(dir_project = ".") {
 notebook_create_page <- function(
   slug = NULL,
   date = NULL,
-  notebook_dir = NULL,
   open = TRUE
 ) {
-
-  if (is.null(notebook_dir)) {
-    config <- targets::tar_read_raw("notebook_config")
-    notebook_dir <- config[["dir_notebook"]]
-  }
+  config <- notebook_config()
+  notebook_dir <- config[["dir_notebook"]]
 
   if (is.null(date)) {
     date_data <- Sys.Date()
@@ -152,5 +207,3 @@ notebook_create_page <- function(
   usethis::ui_done("{usethis::ui_path(to_create)} created")
   invisible(to_create)
 }
-
-#' @importFrom rlang %||%
