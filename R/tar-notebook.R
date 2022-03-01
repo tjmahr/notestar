@@ -41,7 +41,7 @@ tar_notebook_pages <- function() {
     rmd_file = notebook_rmd_collate(!! dir_notebook),
     rmd_page_raw = basename(.data$rmd_file),
     md_page_raw = rmd_to_md(.data$rmd_page_raw),
-    rmd_page = paste0("entry_", .data$rmd_page_raw) %>%
+    rmd_page = paste0("entry_", .data$rmd_page_raw) |>
       janitor::make_clean_names(),
     md_page = rmd_to_md(.data$rmd_page),
     sym_rmd_page = rlang::syms(.data$rmd_page),
@@ -201,7 +201,7 @@ tar_notebook_index_rmd <- function(
   # Overwrite individual arguments with the values from .list if they are
   # present, e.g. prefer "blah" in this situation
   #     `title = "default", .list = list(title = "blah")`
-  data_args <- data_in_named_args %>%
+  data_args <- data_in_named_args |>
     utils::modifyList(.list, keep.null = TRUE)
 
   data_args$csl_in <- data_args$csl
@@ -212,8 +212,8 @@ tar_notebook_index_rmd <- function(
   # Finally, plug in any defaults from the package template
   template <- system.file("templates/index.Rmd", package = "notestar")
   data_in_file <- rmarkdown::yaml_front_matter(template)
-  data <- data_in_file %>%
-    utils::modifyList(data_args) %>%
+  data <- data_in_file |>
+    utils::modifyList(data_args) |>
     utils::modifyList(list(index_rmd_body_lines = index_rmd_body_lines))
 
 
@@ -298,10 +298,10 @@ tar_notebook_index_rmd <- function(
   tar_index_rmd <- targets::tar_target_raw(
     "notebook_index_rmd",
     command = rlang::expr({
-      yml_header <- ymlthis::as_yml(notebook_index_yml) %>%
-        ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) %>%
-        ymlthis::yml_discard("csl_in") %>%
-        ymlthis::yml_discard("bibliography_in") %>%
+      yml_header <- ymlthis::as_yml(notebook_index_yml) |>
+        ymlthis::yml_discard(~ ymlthis::is_yml_blank(.x)) |>
+        ymlthis::yml_discard("csl_in") |>
+        ymlthis::yml_discard("bibliography_in") |>
         ymlthis::yml_discard("index_rmd_body_lines")
 
       path_index <- file.path(!! dir_notebook, "index.Rmd")
@@ -392,13 +392,13 @@ tar_notebook <- function(
   target_output <- targets::tar_target_raw(
     "notebook_output_yaml",
     command = rlang::expr({
-      ymlthis::yml_empty() %>%
+      ymlthis::yml_empty() |>
         ymlthis::yml_output(
           bookdown::markdown_document2(
             !!! markdown_document2_args_merged
           )
-        ) %>%
-        ymlthis::yml_chuck("output") %>%
+        ) |>
+        ymlthis::yml_chuck("output") |>
         notebook_write_yaml(file.path(!! dir_md, "_output.yml"))
     }),
     format = "file"
@@ -422,7 +422,7 @@ tar_notebook <- function(
   target_bookdown <- targets::tar_target_raw(
     "notebook_bookdown_yaml",
     command = rlang::expr({
-      ymlthis::yml_empty() %>%
+      ymlthis::yml_empty() |>
         ymlthis::yml_bookdown_opts(
           book_filename = !! book_filename,
           output_dir = !! subdir_output,
@@ -430,7 +430,7 @@ tar_notebook <- function(
           new_session = TRUE,
           before_chapter_script = basename(!! rlang::sym("notebook_helper")),
           rmd_files = basename(!! rlang::sym("notebook_mds"))
-        ) %>%
+        ) |>
         notebook_write_yaml(
           file.path(
             !! dir_md,

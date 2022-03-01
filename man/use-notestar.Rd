@@ -3,6 +3,7 @@
 \name{use_notestar}
 \alias{use_notestar}
 \alias{use_notestar_makefile}
+\alias{use_notestar_references}
 \title{Create a brand new notebook with default settings}
 \usage{
 use_notestar(
@@ -16,6 +17,8 @@ use_notestar(
 )
 
 use_notestar_makefile(dir_project = ".")
+
+use_notestar_references(dir_project = ".")
 }
 \arguments{
 \item{dir_project}{file-path to the base/root folder of the project. Defaults to
@@ -46,6 +49,9 @@ the code is being called interactively).}
 \value{
 \code{use_notestar_makefile()} creates a Makefile that will build or clean a
 targets-based workflow.
+
+\code{use_notestar_references()} adds the files \code{"refs.bib"} and \code{"apa.csl"} to
+\code{dir_notebook}.
 }
 \description{
 Create a brand new notebook with default settings

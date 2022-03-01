@@ -17,11 +17,11 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Depends: R (>= 4.1.0)
 Imports: 
     knitr,
     callr,
     rlang (>= 0.1.2),
-    magrittr,
     bookdown,
     rmarkdown,
     targets,
@@ -30,19 +30,18 @@ Imports:
     tarchetypes,
     withr,
     usethis,
-    fs,
     here,
     cleanrmd (>= 0.0.7),
     spelling,
     htmltools,
     janitor,
     config,
-    ragg,
     utils,
     crayon
 Suggests: 
     testthat (>= 3.0.0),
-    roxygen2
+    roxygen2,
+    ragg
 SystemRequirements: pandoc (>= 1.14) - http://pandoc.org
 URL: https://github.com/tjmahr/notestar
 BugReports: https://github.com/tjmahr/notestar/issues

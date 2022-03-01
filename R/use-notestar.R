@@ -25,6 +25,9 @@
 #' `use_notestar_makefile()` creates a Makefile that will build or clean a
 #' targets-based workflow.
 #'
+#' `use_notestar_references()` adds the files `"refs.bib"` and `"apa.csl"` to
+#' `dir_notebook`.
+#'
 #' @export
 #' @rdname use-notestar
 use_notestar <- function(
@@ -118,6 +121,40 @@ use_notestar_makefile <- function(dir_project = ".") {
 }
 
 
+#' @export
+#' @rdname use-notestar
+use_notestar_references <- function(dir_project = ".") {
+  usethis::local_project(path = dir_project, quiet = FALSE)
+  config <- notebook_config()
+
+  usethis::use_template(
+    "refs.bib",
+    file.path(config$dir_notebook, "refs.bib"),
+    package = "notestar"
+  )
+
+  usethis::use_template(
+    "apa.csl",
+    file.path(config$dir_notebook, "apa.csl"),
+    package = "notestar"
+  )
+
+  usethis::ui_todo(
+    paste(
+      "In", usethis::ui_path("_targets.R"),
+      "add these lines to the",
+      usethis::ui_code("tar_notebook_index_rmd()"),
+      "call:"
+    )
+  )
+
+  usethis::ui_code_block(c(
+    "bibliography = \"refs.bib\",",
+    "    csl = \"apa.csl\""
+  ))
+}
+
+
 #' Create a new notebook page
 #'
 #' Creates a file with pattern `[notebook_dir]/[date][-slug].Rmd`.
@@ -170,5 +207,3 @@ notebook_create_page <- function(
   usethis::ui_done("{usethis::ui_path(to_create)} created")
   invisible(to_create)
 }
-
-#' @importFrom rlang %||%

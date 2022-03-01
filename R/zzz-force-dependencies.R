@@ -3,8 +3,8 @@
 # These packages are used in the targets but not in the package.
 zzz_force_dependencies <- function() {
   cleanrmd::cleanrmd_themes()
-  fs::dir_info()
+  # fs::dir_info()
   withr::with_options(NULL, NULL)
   spelling::get_wordlist()
-  ragg::agg_png()
+  # ragg::agg_png()
 }

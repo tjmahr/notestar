@@ -29,12 +29,15 @@ targets_notebook <- list(
   tar_notebook_index_rmd(
     title = "Notebook Title",
     author = "Author Name",
+    ## notestar::use_notestar_references() will provide these files
+    ## in the notebook folder. then uncomment these lines and modify
+    ## files as needed:
     # bibliography = "refs.bib",
     # csl = "apa.csl"
   ),
   tar_notebook_pages(),
   tar_notebook(
-    ## we can tell notestar to make the notebook depend on any extra targets by
+    ## We can tell notestar to make the notebook depend on any extra targets by
     ## creating the targets and passing them through here:
     # extra_deps = list(...)
   ),

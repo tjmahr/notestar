@@ -1,6 +1,6 @@
 test_that("use_notestar() defaults provide a make-able notebook", {
   create_local_project()
-  was_successful <- notestar::use_notestar(open = FALSE)
+  was_successful <- use_notestar(open = FALSE)
   expect_true(was_successful)
 
   expect_false(file.exists("notebook/book/docs/notebook.html"))
@@ -11,7 +11,7 @@ test_that("use_notestar() defaults provide a make-able notebook", {
 
 test_that("use_notestar() paths are customizable", {
   create_local_project()
-  was_successful <- notestar::use_notestar(
+  was_successful <- use_notestar(
     dir_notebook = "pages",
     dir_md = "book",
     notebook_helper = "knitr-helpers.R",
@@ -31,7 +31,21 @@ test_that("use_notestar() paths are customizable", {
 })
 
 
-test_that("can track/purge generated figures", {
+test_that("changing config.yml theme should outdate notebook", {
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+  tar_make_quietly()
+
+  yaml_in <- yaml::read_yaml("config.yml")
+  yaml_in$default$notestar$cleanrmd_theme$value <- "sakura-vader"
+  yaml::write_yaml(yaml_in, "config.yml")
+
+  outdated <- targets::tar_outdated()
+  expect_true("notebook" %in% outdated)
+})
+
+
+test_that("notesstar can track/purge generated figures", {
   skip_if_not_installed("ragg")
 
   entry <- "
@@ -61,7 +75,7 @@ test_that("can track/purge generated figures", {
   new_entry <- gsub("\\n  ", "\n", new_entry)
 
   create_local_project()
-  was_successful <- notestar::use_notestar(open = FALSE)
+  was_successful <- use_notestar(open = FALSE)
 
   # Create a notebook with the plot
   writeLines(entry, "notebook/2021-01-01-plot.Rmd")
@@ -113,7 +127,7 @@ test_that("can track/purge generated figures", {
 
 test_that("index.Rmd can be customized", {
   create_local_project()
-  was_successful <- notestar::use_notestar(open = FALSE)
+  was_successful <- use_notestar(open = FALSE)
   expect_true(was_successful)
 
   tar_make_quietly()
@@ -139,8 +153,23 @@ test_that("index.Rmd can be customized", {
   expect_false(old_yaml$title == new_yaml$subtitle)
 })
 
+
 test_that("index.Rmd can be customized (bib file)", {
-  skip("to do")
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+  expect_true(was_successful)
+
+  tar_make_quietly()
+  old_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+
+  writeLines(
+    gsub(
+      "title = .*,",
+      "title = \"Test title\", subtitle = \"another test\",",
+      readLines("_targets.R")
+    ),
+    "_targets.R"
+  )
 })
 
 test_that("index.Rmd can be customized (csl file)", {

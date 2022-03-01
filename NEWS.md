@@ -34,14 +34,17 @@ tar_notebook_index_rmd(
   # csl = "apa.csl"
 )
 ```
+
 The bibliography and csl files should files inside of the notebook
 folder (alongside the .Rmd files). When these files are used in this
 way, they are tracked as dependencies for the whole notebook. They are
 copied to the `assets/` subdirectory of the knitted notebook folder
-(where the .md files live).
+(where the .md files live). `use_notestar_references()` will provide
+starter files for `refs.bib` (which you have to edit) and `apa.csl`
+(which you should not edit).
 
 
-## Bullets
+## Bullet-point summary
 
   - Switched to using a `config.yml` file for storing `dir_notebook`,
     `dir_md`, `notebook_helper`, `cleanrmd_theme`, and
@@ -51,10 +54,15 @@ copied to the `assets/` subdirectory of the knitted notebook folder
   - `dir_notebook` and other options that live in `config.yml` are no
     longer arguments to functions.
     
-  - `tar_notebook_index_rmd()` add to create a index.Rmd programmatically.
+  - `tar_notebook_index_rmd()` add to create a index.Rmd
+    programmatically.
   
   - The notebook helper now lives in the notebook folder (alongside the
     .Rmd files). This file gets copied to the knitted notebook folder.
+    
+  - `use_notestar_references()` provides `refs.bib` and `apa.csl`
+    starter files.
+
 
 
 
