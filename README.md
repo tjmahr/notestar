@@ -36,9 +36,9 @@ R/functions.R and describing a build pipeline in `_targets.R`. Some
 familiarity with the big ideas of the targets packages is required.
 
 We then work with our data-analysis products in RMarkdown .Rmd files in
-a notebook folder. We read in these targets using `targets::tar_read()`,
-and we might develop several entries notebook as we tackle different
-parts of our analysis problem.
+a notebook directory. We read in these targets using
+`targets::tar_read()`, and we might develop several entries notebook as
+we tackle different parts of our analysis problem.
 
 In the `_targets.R` file, there are special notebook-related targets.
 When we run `targets::tar_make()`, notestar does the following:
@@ -98,6 +98,8 @@ functions from this package.
 -   (optional) `use_notestar_makefile()` to set up a Makefile that runs
     `targets::tar_make()`. I then use the RStudio’s Build commands to
     build projects.
+-   (optional) `use_notestar_references()` to set up a .bib and .csl
+    file for the notebook.
 -   `notebook_create_page()` to create a new notebook entry
 -   `notebook_browse()` to open the final notebook file in a browser.
 
@@ -128,7 +130,7 @@ fs::dir_tree(all = TRUE)
 
 ### Initial file skeleton
 
-`use_notestar()` will populate the project folder with the basic
+`use_notestar()` will populate the project directory with the basic
 skeleton for the project. We set the theme to `"water-dark"` so that the
 screenshots below stick out better from the white background on GitHub.
 
@@ -138,17 +140,17 @@ use_notestar(cleanrmd_theme = "water-dark")
 
 fs::dir_tree(all = TRUE)
 #> .
-#> +-- .here
-#> +-- config.yml
-#> +-- notebook
-#> |   +-- 0000-00-00-references.Rmd
-#> |   +-- book
-#> |   |   \-- assets
-#> |   +-- index.Rmd
-#> |   \-- knitr-helpers.R
-#> +-- R
-#> |   \-- functions.R
-#> \-- _targets.R
+#> ├── .here
+#> ├── config.yml
+#> ├── notebook
+#> │   ├── 0000-00-00-references.Rmd
+#> │   ├── book
+#> │   │   └── assets
+#> │   ├── index.Rmd
+#> │   └── knitr-helpers.R
+#> ├── R
+#> │   └── functions.R
+#> └── _targets.R
 ```
 
 The file **`config.yml`** is a
@@ -184,6 +186,11 @@ writeLines(readLines("config.yml"))
             CSS theme to use for the notebook. Anything printed by
             cleanrmd::cleanrmd_themes() should work.
           value: "water-dark"
+        notebook_filename:
+          comment: >
+            Name to use for the final html file. Defaults to "notebook"
+            which produces "notebook.html"
+          value: "notebook"
     ---
 
 Two .Rmd files are automatically included: `index.Rmd` and
@@ -246,38 +253,40 @@ Here we build the notebook and see targets build each target.
 
 ``` r
 targets::tar_make()
-#> * start target notebook_output_yaml
-#> * built target notebook_output_yaml
-#> * start target notebook_deps_in_index_yml
-#> * built target notebook_deps_in_index_yml
-#> * start target notebook_index_rmd
-#> * built target notebook_index_rmd
-#> * start target entry_0000_00_00_references_rmd
-#> * built target entry_0000_00_00_references_rmd
-#> * start target notebook_helper_user
-#> * built target notebook_helper_user
-#> * start target spellcheck_exceptions
-#> * built target spellcheck_exceptions
-#> * start target notebook_rmds
-#> * built target notebook_rmds
-#> * start target notebook_helper
-#> * built target notebook_helper
-#> * start target spellcheck_notebook
-#> * built target spellcheck_notebook
-#> * start target entry_index_md
-#> * built target entry_index_md
-#> * start target entry_0000_00_00_references_md
-#> * built target entry_0000_00_00_references_md
-#> * start target spellcheck_report_results_change
-#> * built target spellcheck_report_results_change
-#> * start target notebook_mds
-#> * built target notebook_mds
-#> * start target spellcheck_report_results
+#> • start target notebook_output_yaml
+#> • built target notebook_output_yaml
+#> • start target notebook_deps_in_index_yml
+#> • built target notebook_deps_in_index_yml
+#> • start target entry_0000_00_00_references_rmd
+#> • built target entry_0000_00_00_references_rmd
+#> • start target notebook_index_yml
+#> • built target notebook_index_yml
+#> • start target notebook_helper_user
+#> • built target notebook_helper_user
+#> • start target spellcheck_exceptions
+#> • built target spellcheck_exceptions
+#> • start target notebook_index_rmd
+#> • built target notebook_index_rmd
+#> • start target notebook_helper
+#> • built target notebook_helper
+#> • start target notebook_rmds
+#> • built target notebook_rmds
+#> • start target entry_index_md
+#> • built target entry_index_md
+#> • start target entry_0000_00_00_references_md
+#> • built target entry_0000_00_00_references_md
+#> • start target spellcheck_notebook
+#> • built target spellcheck_notebook
+#> • start target notebook_mds
+#> • built target notebook_mds
+#> • start target spellcheck_report_results_change
+#> • built target spellcheck_report_results_change
+#> • start target notebook_bookdown_yaml
+#> • built target notebook_bookdown_yaml
+#> • start target spellcheck_report_results
 #> No spelling errors found.
-#> * built target spellcheck_report_results
-#> * start target notebook_bookdown_yaml
-#> * built target notebook_bookdown_yaml
-#> * start target notebook
+#> • built target spellcheck_report_results
+#> • start target notebook
 #> 
 #> 
 #> processing file: index.Rmd
@@ -287,11 +296,11 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.1\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.1\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\Tristan\Documents\R\win-library\4.1\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\Tristan\AppData\Local\Temp\Rtmp4Ai26y\file4c54751c3543" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/Tristan/Documents/R/win-library/4.1/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\Tristan\AppData\Local\Temp\Rtmp4Ai26y\rmarkdown-str4c5466f73299.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\trist\AppData\Local\Temp\RtmpgbqW7D\file4814111e3de7" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/trist/AppData/Local/R/win-library/4.2/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\trist\AppData\Local\Temp\RtmpgbqW7D\rmarkdown-str481478e29c4.html" 
 #> 
 #> Output created: docs/notebook.html
-#> * built target notebook
-#> * end pipeline
+#> • built target notebook
+#> • end pipeline
 ```
 
 If we ask it to build the book again, it skips everything—none of the
@@ -300,24 +309,25 @@ always run.
 
 ``` r
 targets::tar_make()
-#> v skip target notebook_output_yaml
-#> v skip target notebook_deps_in_index_yml
-#> v skip target notebook_index_rmd
-#> v skip target entry_0000_00_00_references_rmd
-#> v skip target notebook_helper_user
-#> v skip target spellcheck_exceptions
-#> v skip target notebook_rmds
-#> v skip target notebook_helper
-#> v skip target spellcheck_notebook
-#> v skip target entry_index_md
-#> v skip target entry_0000_00_00_references_md
-#> * start target spellcheck_report_results_change
-#> * built target spellcheck_report_results_change
-#> v skip target notebook_mds
-#> v skip target spellcheck_report_results
-#> v skip target notebook_bookdown_yaml
-#> v skip target notebook
-#> * end pipeline
+#> ✓ skip target notebook_output_yaml
+#> ✓ skip target notebook_deps_in_index_yml
+#> ✓ skip target entry_0000_00_00_references_rmd
+#> ✓ skip target notebook_index_yml
+#> ✓ skip target notebook_helper_user
+#> ✓ skip target spellcheck_exceptions
+#> ✓ skip target notebook_index_rmd
+#> ✓ skip target notebook_helper
+#> ✓ skip target notebook_rmds
+#> ✓ skip target entry_index_md
+#> ✓ skip target entry_0000_00_00_references_md
+#> ✓ skip target spellcheck_notebook
+#> ✓ skip target notebook_mds
+#> • start target spellcheck_report_results_change
+#> • built target spellcheck_report_results_change
+#> ✓ skip target notebook_bookdown_yaml
+#> ✓ skip target spellcheck_report_results
+#> ✓ skip target notebook
+#> • end pipeline
 ```
 
 Right now, our compiled notebook (`"notebook/book/docs/notebook.html"`)
@@ -330,43 +340,44 @@ If we look at the project tree, we see some additions.
 ``` r
 fs::dir_tree(all = TRUE)
 #> .
-#> +-- .here
-#> +-- config.yml
-#> +-- notebook
-#> |   +-- 0000-00-00-references.Rmd
-#> |   +-- book
-#> |   |   +-- 0000-00-00-references.md
-#> |   |   +-- assets
-#> |   |   +-- docs
-#> |   |   |   +-- 0000-00-00-references.md
-#> |   |   |   +-- index.md
-#> |   |   |   +-- notebook.html
-#> |   |   |   \-- reference-keys.txt
-#> |   |   +-- index.Rmd
-#> |   |   +-- knitr-helpers.R
-#> |   |   +-- notebook.rds
-#> |   |   +-- _bookdown.yml
-#> |   |   \-- _output.yml
-#> |   +-- index.Rmd
-#> |   \-- knitr-helpers.R
-#> +-- R
-#> |   \-- functions.R
-#> +-- shot1.png
-#> +-- _targets
-#> |   +-- .gitignore
-#> |   +-- meta
-#> |   |   +-- meta
-#> |   |   +-- process
-#> |   |   \-- progress
-#> |   +-- objects
-#> |   |   +-- notebook_deps_in_index_yml
-#> |   |   +-- notebook_rmds
-#> |   |   +-- spellcheck_exceptions
-#> |   |   +-- spellcheck_notebook
-#> |   |   +-- spellcheck_report_results
-#> |   |   \-- spellcheck_report_results_change
-#> |   \-- user
-#> \-- _targets.R
+#> ├── .here
+#> ├── config.yml
+#> ├── notebook
+#> │   ├── 0000-00-00-references.Rmd
+#> │   ├── book
+#> │   │   ├── 0000-00-00-references.md
+#> │   │   ├── assets
+#> │   │   ├── docs
+#> │   │   │   ├── 0000-00-00-references.md
+#> │   │   │   ├── index.md
+#> │   │   │   ├── notebook.html
+#> │   │   │   └── reference-keys.txt
+#> │   │   ├── index.Rmd
+#> │   │   ├── knitr-helpers.R
+#> │   │   ├── notebook.rds
+#> │   │   ├── _bookdown.yml
+#> │   │   └── _output.yml
+#> │   ├── index.Rmd
+#> │   └── knitr-helpers.R
+#> ├── R
+#> │   └── functions.R
+#> ├── shot1.png
+#> ├── _targets
+#> │   ├── .gitignore
+#> │   ├── meta
+#> │   │   ├── meta
+#> │   │   ├── process
+#> │   │   └── progress
+#> │   ├── objects
+#> │   │   ├── notebook_deps_in_index_yml
+#> │   │   ├── notebook_index_yml
+#> │   │   ├── notebook_rmds
+#> │   │   ├── spellcheck_exceptions
+#> │   │   ├── spellcheck_notebook
+#> │   │   ├── spellcheck_report_results
+#> │   │   └── spellcheck_report_results_change
+#> │   └── user
+#> └── _targets.R
 ```
 
 `_targets/` is a new directory. It is the object and metadata storage
@@ -378,13 +389,13 @@ bookdown-related files (`_bookdown.yml`, `_output.yml` and
 `notebook/book/docs`. (`notebook/book/docs/notebook.html` is the file we
 screenshotted earlier.)
 
-`knitr-helpers.R` was also copied to the `notebook/book/` folder. This
-copying reflects design decision by the package. **Namely, the contents
-of the `notebook/book` folder should not be edited by hand.** Its
-contents should be reproducible whether by regenerating files (like the
-.md files) or by copying files (like `knitr-helpers.R`. The user should
-only have to worry about editing files in the `notebook/` folder or in
-`_targets.R` (or perhaps `config.yml`).
+`knitr-helpers.R` was also copied to the `notebook/book/` directory.
+This copying reflects design decision by the package. **Namely, the
+contents of the `notebook/book` directory should not be edited by
+hand.** Its contents should be reproducible whether by regenerating
+files (like the .md files) or by copying files (like `knitr-helpers.R`.
+The user should only have to worry about editing files in the
+`notebook/` directory or in `_targets.R` (or perhaps `config.yml`).
 
 We can create a new entry from a template using `notebook_create_page()`
 and regenerate the notebook. (A slug is some words we include in the
@@ -392,10 +403,10 @@ filename to help remember what the entry is about.)
 
 ``` r
 notebook_create_page(date = "2022-02-22", slug = "hello-world")
-#> v Setting active project to 'C:/Users/Tristan/AppData/Local/Temp/RtmpO6zZAL/my-project'
-#> v Writing 'notebook/2022-02-22-hello-world.Rmd'
-#> * Edit 'notebook/2022-02-22-hello-world.Rmd'
-#> v 'notebook/2022-02-22-hello-world.Rmd' created
+#> ✓ Setting active project to 'C:/Users/trist/AppData/Local/Temp/RtmpGCWbEy/my-project'
+#> ✓ Writing 'notebook/2022-02-22-hello-world.Rmd'
+#> • Edit 'notebook/2022-02-22-hello-world.Rmd'
+#> ✓ 'notebook/2022-02-22-hello-world.Rmd' created
 ```
 
 Now targets has to rebuild the notebook because there is a new entry
@@ -464,7 +475,7 @@ updated. Here is the first line of that .md file:
 writeLines(readLines("notebook/book/2022-02-22-hello-world.md")[1])
 ```
 
-    <!--- Timestamp to trigger book rebuilds: 2022-02-25 11:22:03 --->
+    <!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:34 --->
 
 This timestamp allows us to mark a notebook entry as outdated even if
 none of the text in the .md file has changed. Here is a motivating
@@ -533,9 +544,9 @@ entry_v1 == entry_v2
 #>  [1] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
 #> [13]  TRUE  TRUE
 entry_v1[1] 
-#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-02-25 11:22:11 --->"
+#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:40 --->"
 entry_v2[1]
-#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-02-25 11:22:19 --->"
+#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:47 --->"
 ```
 
 This phenomenon, where a change to an .Rmd file would not cause a change
@@ -607,9 +618,9 @@ Let’s demonstrate this feature. Here are the current notebook assets:
 ``` r
 fs::dir_tree("./notebook/book/assets")
 #> ./notebook/book/assets
-#> \-- figure
-#>     \-- 2022-02-22-hello-world
-#>         \-- old-faithful-1.png
+#> └── figure
+#>     └── 2022-02-22-hello-world
+#>         └── old-faithful-1.png
 ```
 
 We will restore the original version of the entry so that the plot is no
@@ -622,13 +633,13 @@ targets::tar_make()
 #> [output omitted]
 ```
 
-What we have now is an empty folder.
+What we have now is an empty directory.
 
 ``` r
 fs::dir_tree("./notebook/book/assets")
 #> ./notebook/book/assets
-#> \-- figure
-#>     \-- 2022-02-22-hello-world
+#> └── figure
+#>     └── 2022-02-22-hello-world
 ```
 
 This behavior is controlled in the `knitr-helpers.R` file, specifically

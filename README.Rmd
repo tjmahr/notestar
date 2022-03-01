@@ -55,7 +55,7 @@ R/functions.R and describing a build pipeline in `_targets.R`. Some
 familiarity with the big ideas of the targets packages is required.
 
 We then work with our data-analysis products in RMarkdown .Rmd files in
-a notebook folder. We read in these targets using `targets::tar_read()`,
+a notebook directory. We read in these targets using `targets::tar_read()`,
 and we might develop several entries notebook as we tackle different
 parts of our analysis problem.
 
@@ -119,6 +119,8 @@ functions from this package.
   - (optional) `use_notestar_makefile()` to set up a Makefile that runs
     `targets::tar_make()`. I then use the RStudio's Build commands to
     build projects.
+  - (optional) `use_notestar_references()` to set up a .bib and .csl file 
+    for the notebook.
   - `notebook_create_page()` to create a new notebook entry
   - `notebook_browse()` to open the final notebook file in a browser.
 
@@ -153,7 +155,7 @@ fs::dir_tree(all = TRUE)
 
 ### Initial file skeleton
 
-`use_notestar()` will populate the project folder with the basic
+`use_notestar()` will populate the project directory with the basic
 skeleton for the project. We set the theme to `"water-dark"` so that the
 screenshots below stick out better from the white background on GitHub.
 
@@ -256,17 +258,17 @@ bookdown-related files (`_bookdown.yml`, `_output.yml` and
 `notebook/book/docs`. (`notebook/book/docs/notebook.html` is the file we
 screenshotted earlier.) 
 
-`knitr-helpers.R` was also copied to the `notebook/book/` folder. This
+`knitr-helpers.R` was also copied to the `notebook/book/` directory. This
 copying reflects design decision by the package. **Namely, the contents
-of the `notebook/book` folder should not be edited by hand.** Its
+of the `notebook/book` directory should not be edited by hand.** Its
 contents should be reproducible whether by regenerating files (like the
 .md files) or by copying files (like `knitr-helpers.R`. The user should
-only have to worry about editing files in the `notebook/` folder or in
+only have to worry about editing files in the `notebook/` directory or in
 `_targets.R` (or perhaps `config.yml`). 
 
-We can create a new entry from a template using `notebook_create_page()` and
-regenerate the notebook. (A slug is some words we include in the filename to
-help remember what the entry is about.)
+We can create a new entry from a template using `notebook_create_page()`
+and regenerate the notebook. (A slug is some words we include in the
+filename to help remember what the entry is about.)
 
 ```{r}
 notebook_create_page(date = "2022-02-22", slug = "hello-world")
@@ -299,11 +301,11 @@ webshot::webshot(
 
 ### Next steps
 
-From here, we go with the flow. We use targets as we normally would, modifying
-`R/functions.R` and `targets.R` to set up our data-processing pipeline. We can
-now use our notebook to do reporting and exploration as part of our
-data-processing pipeline. Things we make with targets can be `tar_read()` into
-our notebook entries and tracked as dependencies.
+From here, we go with the flow. We use targets as we normally would,
+modifying `R/functions.R` and `targets.R` to set up our data-processing
+pipeline. We can now use our notebook to do reporting and exploration as
+part of our data-processing pipeline. Things we make with targets can be
+`tar_read()` into our notebook entries and tracked as dependencies.
 
 
 ### Behind-the-scenes details
@@ -484,7 +486,7 @@ targets::tar_make()
 #> [output omitted]
 ```
 
-What we have now is an empty folder.
+What we have now is an empty directory.
 
 ```{r}
 fs::dir_tree("./notebook/book/assets")
