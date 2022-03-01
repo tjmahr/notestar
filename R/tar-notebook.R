@@ -217,7 +217,6 @@ tar_notebook_index_rmd <- function(
     utils::modifyList(data_args) |>
     utils::modifyList(list(index_rmd_body_lines = index_rmd_body_lines))
 
-
   tar_index_rmd_body <- list()
   tar_user_bibliography <- list()
   tar_asset_bibliography <- list()
@@ -238,7 +237,7 @@ tar_notebook_index_rmd <- function(
       rlang::expr({
         file.path(
           !! dir_notebook,
-          !! notebook_index_yml$bibliography_in
+          notebook_index_yml$bibliography_in
         )
       }),
       format = "file"
@@ -250,7 +249,7 @@ tar_notebook_index_rmd <- function(
         path_out <- file.path(
           !! dir_md,
           "assets",
-          !! notebook_index_yml$bibliography_in
+          notebook_index_yml$bibliography_in
         )
         file.copy(!! sym_notebook_bibliography_user, path_out)
         path_out
@@ -269,7 +268,7 @@ tar_notebook_index_rmd <- function(
       rlang::expr({
         file.path(
           !! dir_notebook,
-          !! notebook_index_yml$csl_in
+          notebook_index_yml$csl_in
         )
       }),
       format = "file"
@@ -281,7 +280,7 @@ tar_notebook_index_rmd <- function(
         path_out <- file.path(
           !! dir_md,
           "assets",
-          !! notebook_index_yml$csl_in
+          notebook_index_yml$csl_in
         )
         file.copy(!! sym_notebook_csl_user, path_out)
         path_out

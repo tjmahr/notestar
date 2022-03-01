@@ -128,7 +128,6 @@ test_that("notesstar can track/purge generated figures", {
 test_that("index.Rmd can be customized", {
   create_local_project()
   was_successful <- use_notestar(open = FALSE)
-  expect_true(was_successful)
 
   tar_make_quietly()
   old_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
@@ -154,25 +153,54 @@ test_that("index.Rmd can be customized", {
 })
 
 
-test_that("index.Rmd can be customized (bib file)", {
+test_that("index.Rmd can be customized (references)", {
   create_local_project()
   was_successful <- use_notestar(open = FALSE)
-  expect_true(was_successful)
-
+  use_notestar_references()
   tar_make_quietly()
+
   old_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+  old_assets <- list.files("notebook/book/assets/")
+  expect_length(old_assets, 0)
 
   writeLines(
     gsub(
-      "title = .*,",
-      "title = \"Test title\", subtitle = \"another test\",",
+      "# bibliography = \"refs.bib\"",
+      "bibliography = \"refs.bib\"",
       readLines("_targets.R")
     ),
     "_targets.R"
   )
-})
 
-test_that("index.Rmd can be customized (csl file)", {
-  skip("to do")
-})
+  writeLines(
+    gsub(
+      "# csl = \"apa.csl\"",
+      "csl = \"apa.csl\"",
+      readLines("_targets.R")
+    ),
+    "_targets.R"
+  )
 
+  tar_make_quietly()
+  new_yaml <- rmarkdown::yaml_front_matter("notebook/index.Rmd")
+  new_assets <- list.files("notebook/book/assets/")
+
+  expect_length(new_assets, 2)
+  expect_equal(new_yaml$csl, "./assets/apa.csl")
+  expect_equal(new_yaml$bibliography, "./assets/refs.bib")
+
+  # Modifying the references should outdate notebook
+  expect_false("notebook" %in% targets::tar_outdated())
+
+  writeLines(
+    gsub(
+      "@Manual.R.base,",
+      "@Manual{R-base-entry,",
+      readLines("./notebook/refs.bib")
+    ),
+    "./notebook/refs.bib"
+  )
+  outdated <- targets::tar_outdated()
+  expect_true("notebook" %in% outdated)
+  expect_true("notebook_bibliography_asset" %in% outdated)
+})
