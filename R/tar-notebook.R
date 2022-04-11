@@ -251,7 +251,7 @@ tar_notebook_index_rmd <- function(
           "assets",
           notebook_index_yml$bibliography_in
         )
-        file.copy(!! sym_notebook_bibliography_user, path_out)
+        file.copy(!! sym_notebook_bibliography_user, path_out, overwrite = TRUE)
         path_out
       }),
       format = "file"
@@ -282,7 +282,7 @@ tar_notebook_index_rmd <- function(
           "assets",
           notebook_index_yml$csl_in
         )
-        file.copy(!! sym_notebook_csl_user, path_out)
+        file.copy(!! sym_notebook_csl_user, path_out, overwrite = TRUE)
         path_out
       }),
       format = "file"
@@ -593,6 +593,34 @@ knit_page <- function(rmd_in, md_out, helper_script) {
         full.names = TRUE,
         recursive = TRUE
       )
+    }
+  }
+
+
+  if (isTRUE(knitr::opts_knit$get("notestar_clean_entry_yaml"))) {
+    if (basename(rmd_in) != "index.Rmd") {
+      front_matter <- rmarkdown::yaml_front_matter(md_out)
+      if (utils::hasName(front_matter, "bibliography")) {
+        warning(
+          "`bibliography` yaml entry found in notebook entry: ", rmd_in,
+          "\nPlease declare bibliography files in index.Rmd."
+        )
+        filename <- tempfile()
+        front_matter$bibliography <- NULL
+        yaml::write_yaml(front_matter, filename)
+        new_yaml <- c("---", readLines(filename), "---")
+
+        lines <- readLines(md_out)
+
+        yaml_starts <- grep("^---$", lines)
+        yaml_ends <- grep("^(---)|([.][.][.])$", lines)
+
+        lines[yaml_starts[1]:yaml_ends[2]] <- ""
+
+        lines[seq(yaml_starts[1], length.out = length(new_yaml))] <- new_yaml
+
+        writeLines(lines, md_out)
+      }
     }
   }
 

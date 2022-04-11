@@ -206,3 +206,31 @@ test_that("index.Rmd can be customized (references)", {
   expect_true("notebook" %in% outdated)
   expect_true("notebook_bibliography_asset" %in% outdated)
 })
+
+
+test_that("can edit out yaml bibliography field in non index.Rmd entries", {
+  create_local_project()
+  was_successful <- use_notestar(open = FALSE)
+
+  tar_make_quietly()
+
+  notebook_create_page("test", date = "2020-01-01", open = FALSE)
+
+  yaml_to_add <- "---
+editor_options:
+  markdown:
+    wrap: 72
+bibliography: references.bib
+---
+"
+  writeLines(
+    c(yaml_to_add, readLines("notebook/2020-01-01-test.Rmd")),
+    "notebook/2020-01-01-test.Rmd"
+  )
+  tar_make_quietly()
+
+  rmarkdown::yaml_front_matter("notebook/2020-01-01-test.Rmd") |>
+    expect_named(c("editor_options", "bibliography"))
+  rmarkdown::yaml_front_matter("notebook/book/2020-01-01-test.md") |>
+    expect_named(c("editor_options"))
+})

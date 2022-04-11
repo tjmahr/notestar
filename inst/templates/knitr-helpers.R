@@ -8,3 +8,4 @@ notestar::notebook_set_opts_chunk()
 notestar::notebook_set_markdown_hooks()
 
 knitr::opts_knit$set(notestar_purge_figures = TRUE)
+knitr::opts_knit$set(notestar_clean_entry_yaml = TRUE)

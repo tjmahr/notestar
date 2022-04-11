@@ -11,8 +11,8 @@ create_local_project <- function(
 
   withr::defer(
     {
-      options(old_options)
       usethis::proj_set(old_project, force = TRUE)
+      options(old_options)
       setwd(old_project)
       unlink(dir, recursive = TRUE)
       # fs::dir_delete(dir)
