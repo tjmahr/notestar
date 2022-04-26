@@ -16,4 +16,4 @@ clean:
 	  targets::tar_prune(callr_function = NULL);                      \
 	  Sys.sleep(.25);                                                 \
 	  cli::cat_rule('Makefile finished')                              \
-	 "
+	"
