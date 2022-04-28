@@ -62,6 +62,13 @@ starter files for `refs.bib` (which you have to edit) and `apa.csl`
     
   - `use_notestar_references()` provides `refs.bib` and `apa.csl`
     starter files.
+    
+  - If an entry's .md file has yaml metadata and the field
+    `bibliography: ...`, that entry is removed. The RStudio visual
+    editor adds this metadata line to individual .Rmd entries, causing
+    notebook builds to fail.
+    `knitr::opts_knit$set(notestar_clean_entry_yaml = TRUE)` in the
+    knitr-helpers.R file controls this behavior. (#10)
 
 
 

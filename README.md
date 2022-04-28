@@ -296,7 +296,7 @@ targets::tar_make()
 #> 
 #> output file: index.knit.md
 #> 
-#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\trist\AppData\Local\Temp\RtmpgbqW7D\file4814111e3de7" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/trist/AppData/Local/R/win-library/4.2/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\trist\AppData\Local\Temp\RtmpgbqW7D\rmarkdown-str481478e29c4.html" 
+#> "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS notebook.md --to html5 --from markdown+autolink_bare_uris+tex_math_single_backslash --output notebook.html --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\bookdown\rmarkdown\lua\custom-environment.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\trist\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\latex-div.lua" --metadata-file "C:\Users\trist\AppData\Local\Temp\RtmpOE7W2v\file58d87b347c18" --self-contained --variable disable-fontawesome --variable title-in-header --highlight-style pygments --table-of-contents --toc-depth 3 --mathjax --variable "mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --template "C:/Users/trist/AppData/Local/R/win-library/4.2/cleanrmd/template/cleanrmd.html" --include-in-header "C:\Users\trist\AppData\Local\Temp\RtmpOE7W2v\rmarkdown-str58d82cc775d5.html" 
 #> 
 #> Output created: docs/notebook.html
 #> • built target notebook
@@ -403,7 +403,7 @@ filename to help remember what the entry is about.)
 
 ``` r
 notebook_create_page(date = "2022-02-22", slug = "hello-world")
-#> ✓ Setting active project to 'C:/Users/trist/AppData/Local/Temp/RtmpGCWbEy/my-project'
+#> ✓ Setting active project to 'C:/Users/trist/AppData/Local/Temp/Rtmp0CF7CR/my-project'
 #> ✓ Writing 'notebook/2022-02-22-hello-world.Rmd'
 #> • Edit 'notebook/2022-02-22-hello-world.Rmd'
 #> ✓ 'notebook/2022-02-22-hello-world.Rmd' created
@@ -475,7 +475,7 @@ updated. Here is the first line of that .md file:
 writeLines(readLines("notebook/book/2022-02-22-hello-world.md")[1])
 ```
 
-    <!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:34 --->
+    <!--- Timestamp to trigger book rebuilds: 2022-03-01 13:35:54 --->
 
 This timestamp allows us to mark a notebook entry as outdated even if
 none of the text in the .md file has changed. Here is a motivating
@@ -544,9 +544,9 @@ entry_v1 == entry_v2
 #>  [1] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
 #> [13]  TRUE  TRUE
 entry_v1[1] 
-#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:40 --->"
+#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:36:00 --->"
 entry_v2[1]
-#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:24:47 --->"
+#> [1] "<!--- Timestamp to trigger book rebuilds: 2022-03-01 13:36:07 --->"
 ```
 
 This phenomenon, where a change to an .Rmd file would not cause a change
