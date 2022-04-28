@@ -251,7 +251,11 @@ tar_notebook_index_rmd <- function(
           "assets",
           notebook_index_yml$bibliography_in
         )
-        file.copy(!! sym_notebook_bibliography_user, path_out)
+        file.copy(
+          !! sym_notebook_bibliography_user,
+          path_out,
+          overwrite = TRUE
+        )
         path_out
       }),
       format = "file"
@@ -282,7 +286,11 @@ tar_notebook_index_rmd <- function(
           "assets",
           notebook_index_yml$csl_in
         )
-        file.copy(!! sym_notebook_csl_user, path_out)
+        file.copy(
+          !! sym_notebook_csl_user,
+          path_out,
+          overwrite = TRUE
+        )
         path_out
       }),
       format = "file"
