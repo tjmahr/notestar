@@ -205,10 +205,24 @@ test_that("index.Rmd can be customized (references)", {
   outdated <- targets::tar_outdated()
   expect_true("notebook" %in% outdated)
   expect_true("notebook_bibliography_asset" %in% outdated)
+  tar_make_quietly()
+
+  outdated <- targets::tar_outdated()
+  expect_false("notebook" %in% outdated)
+
+  writeLines(
+    c(readLines("./notebook/refs.bib"), format(toBibtex(citation("nlme")))),
+    "./notebook/refs.bib"
+  )
+
+  outdated <- targets::tar_outdated()
+  expect_true("notebook" %in% outdated)
+
 })
 
 
 test_that("can edit out yaml bibliography field in non index.Rmd entries", {
+  skip_on_ci()
   create_local_project()
   was_successful <- use_notestar(open = FALSE)
 
