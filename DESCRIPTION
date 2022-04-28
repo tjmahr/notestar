@@ -1,6 +1,6 @@
 Package: notestar
 Title: Notebooks Using 'Targets' and 'Bookdown'
-Version: 0.0.0.9001
+Version: 0.0.0.9002
 Authors@R: 
     person(
       given = "Tristan",
