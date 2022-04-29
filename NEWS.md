@@ -43,6 +43,11 @@ copied to the `assets/` subdirectory of the knitted notebook folder
 starter files for `refs.bib` (which you have to edit) and `apa.csl`
 (which you should not edit).
 
+The notebook target always has a dependency on
+`notebook_bibliography_asset` and `notebook_csl_asset` targets. If you
+are not using either of these files however, the value of these targets
+is `list()` (an empty value).
+
 
 ## Bullet-point summary
 

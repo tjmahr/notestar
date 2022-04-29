@@ -53,9 +53,6 @@ the bibliography and csl files in the \code{dir_notebook} user folder.
 \item \code{notebook_bibliography_asset}, \code{notebook_csl_asset}: file targets for
 the bibliography and csl files in the \code{dir_md} assets folder. These
 command to build these targets to copy them.
-\item \code{notebook_deps_in_index_yml}: a list with the names of asset
-bibliography and asset csl targets if they are present. Can be an
-empty list.
 \item \code{notebook_index_rmd}: file target for the index.Rmd file.
 }
 

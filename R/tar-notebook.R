@@ -157,9 +157,6 @@ tar_notebook_pages <- function() {
 #'  - `notebook_bibliography_asset`, `notebook_csl_asset`: file targets for
 #'    the bibliography and csl files in the `dir_md` assets folder. These
 #'    command to build these targets to copy them.
-#'  - `notebook_deps_in_index_yml`: a list with the names of asset
-#'    bibliography and asset csl targets if they are present. Can be an
-#'    empty list.
 #'  - `notebook_index_rmd`: file target for the index.Rmd file.
 #'
 #'  If any of these file targets is not used, an empty target `list()` is passed
@@ -217,12 +214,12 @@ tar_notebook_index_rmd <- function(
     utils::modifyList(data_args) |>
     utils::modifyList(list(index_rmd_body_lines = index_rmd_body_lines))
 
+  tar_empty <- function(x) targets::tar_target_raw(x, quote(list()))
   tar_index_rmd_body <- list()
   tar_user_bibliography <- list()
-  tar_asset_bibliography <- list()
   tar_user_csl <- list()
-  tar_asset_csl <- list()
-  notebook_deps <- list()
+  tar_asset_csl <- tar_empty("notebook_csl_asset")
+  tar_asset_bibliography <- tar_empty("notebook_bibliography_asset")
 
   tar_index_yaml_data <- targets::tar_target_raw(
     "notebook_index_yml",
@@ -260,8 +257,6 @@ tar_notebook_index_rmd <- function(
       }),
       format = "file"
     )
-
-    notebook_deps <- append(notebook_deps, quote(notebook_bibliography_asset))
   }
 
   if (length(csl) != 0) {
@@ -295,13 +290,7 @@ tar_notebook_index_rmd <- function(
       }),
       format = "file"
     )
-    notebook_deps <- append(notebook_deps, quote(notebook_csl_asset))
   }
-
-  tar_yml_deps <- targets::tar_target_raw(
-    "notebook_deps_in_index_yml",
-    command = rlang::expr({ !!! notebook_deps })
-  )
 
   tar_index_rmd <- targets::tar_target_raw(
     "notebook_index_rmd",
@@ -332,7 +321,6 @@ tar_notebook_index_rmd <- function(
     tar_user_bibliography,
     tar_asset_csl,
     tar_user_csl,
-    tar_yml_deps,
     tar_index_rmd
   )
 }
@@ -456,7 +444,8 @@ tar_notebook <- function(
         !! rlang::sym("notebook_mds"),
         !! rlang::sym("notebook_bookdown_yaml"),
         !! rlang::sym("notebook_output_yaml"),
-        !! rlang::sym("notebook_deps_in_index_yml")
+        !! rlang::sym("notebook_bibliography_asset"),
+        !! rlang::sym("notebook_csl_asset")
       )
       extra_deps <- !! expr_extra_deps
       rmarkdown::render_site(

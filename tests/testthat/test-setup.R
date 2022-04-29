@@ -204,7 +204,9 @@ test_that("index.Rmd can be customized (references)", {
   )
   outdated <- targets::tar_outdated()
   expect_true("notebook" %in% outdated)
-  expect_true("notebook_bibliography_asset" %in% outdated)
+  tar_make_quietly("notebook_bibliography_asset")
+
+  expect_true("notebook" %in% outdated)
   tar_make_quietly()
 
   outdated <- targets::tar_outdated()
@@ -215,6 +217,7 @@ test_that("index.Rmd can be customized (references)", {
     "./notebook/refs.bib"
   )
 
+  tar_make_quietly("notebook_bibliography_asset")
   outdated <- targets::tar_outdated()
   expect_true("notebook" %in% outdated)
 
