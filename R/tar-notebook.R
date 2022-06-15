@@ -344,6 +344,8 @@ path_if_lengthy <- function(file, ...) {
 #'   targets defined elsewhere in the dependencies graph. Defaults to `list()`.
 #'   Use this argument, for example, to force a notebook to depend on a `.css`
 #'   file.
+#' @param use_downlit whether to post-process the notebook with the downlit
+#'   syntax highlighter. Default is `FALSE`.
 #' @param markdown_document2_args arguments to pass onto
 #'   [bookdown::markdown_document2()]. Defaults to `list()`.
 #' @return A list of targets.
@@ -363,6 +365,7 @@ path_if_lengthy <- function(file, ...) {
 tar_notebook <- function(
   subdir_output = "docs",
   extra_deps = list(),
+  use_downlit = FALSE,
   markdown_document2_args = list()
 ) {
   # Retrieve the configuration
@@ -371,6 +374,7 @@ tar_notebook <- function(
   dir_md <- config$dir_md
   theme <- config$cleanrmd_theme
   book_filename <- config$notebook_filename
+  final_book_filename <- book_filename
 
   markdown_document2_args_defaults <- lazy_list(
     base_format = "cleanrmd::html_document_clean",
@@ -382,6 +386,26 @@ tar_notebook <- function(
   markdown_document2_args_defaults[names(markdown_document2_args)] <-
     markdown_document2_args
   markdown_document2_args_merged <- markdown_document2_args_defaults
+
+  if (use_downlit) {
+    css_downlit <- file.path(dir_md, "assets", "downlit.css")
+    if (!file.exists(css_downlit)) {
+      usethis::use_template(
+        template = "downlit.css",
+        package = "notestar",
+        save_as = css_downlit
+      )
+    }
+    book_filename <- paste0(".", book_filename)
+
+    if (!is.null(markdown_document2_args_merged$css)) {
+      markdown_document2_args_merged$css <- c(
+        markdown_document2_args_merged$css,
+        css_downlit
+      )
+    }
+  }
+
 
   # Prepare _output.yml
   target_output <- targets::tar_target_raw(
@@ -452,11 +476,29 @@ tar_notebook <- function(
         !! dir_md,
         encoding = "UTF-8"
       )
-      file.path(
+
+      path <- file.path(
         !! dir_md,
         !! subdir_output,
         paste0(!! book_filename, ".html")
       )
+
+      path_final <- file.path(
+        !! dir_md,
+        !! subdir_output,
+        paste0(!! final_book_filename, ".html")
+      )
+
+      if (!! use_downlit) {
+        if (!rlang::is_installed("downlit")) {
+          warning("`use_downlit` is `TRUE` but downlit is not installed.")
+        } else {
+          downlit::downlit_html_path(path, path_final)
+        }
+      }
+
+      path_final
+
     }),
     format = "file"
   )

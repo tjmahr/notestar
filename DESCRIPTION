@@ -16,7 +16,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Depends: R (>= 4.1.0)
 Imports: 
     knitr,
@@ -41,7 +41,8 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     roxygen2,
-    ragg
+    ragg,
+    downlit
 SystemRequirements: pandoc (>= 1.14) - http://pandoc.org
 URL: https://github.com/tjmahr/notestar
 BugReports: https://github.com/tjmahr/notestar/issues

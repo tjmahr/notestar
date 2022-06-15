@@ -7,6 +7,7 @@
 tar_notebook(
   subdir_output = "docs",
   extra_deps = list(),
+  use_downlit = FALSE,
   markdown_document2_args = list()
 )
 }
@@ -18,6 +19,9 @@ file produced by bookdown. Defaults to \code{"docs"}.}
 targets defined elsewhere in the dependencies graph. Defaults to \code{list()}.
 Use this argument, for example, to force a notebook to depend on a \code{.css}
 file.}
+
+\item{use_downlit}{whether to post-process the notebook with the downlit
+syntax highlighter. Default is \code{FALSE}.}
 
 \item{markdown_document2_args}{arguments to pass onto
 \code{\link[bookdown:html_document2]{bookdown::markdown_document2()}}. Defaults to \code{list()}.}

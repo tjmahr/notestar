@@ -75,7 +75,8 @@ is `list()` (an empty value).
     `knitr::opts_knit$set(notestar_clean_entry_yaml = TRUE)` in the
     knitr-helpers.R file controls this behavior. (#10)
 
-
+  - `tar_notebook()` gains a `use_downlit()` argument to so that the html file
+    can be post-processed by downlit.
 
 
 # notestar 0.0.0.9000
