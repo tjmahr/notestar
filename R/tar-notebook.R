@@ -398,12 +398,10 @@ tar_notebook <- function(
     }
     book_filename <- paste0(".", book_filename)
 
-    if (!is.null(markdown_document2_args_merged$css)) {
-      markdown_document2_args_merged$css <- c(
-        markdown_document2_args_merged$css,
-        css_downlit
-      )
-    }
+    markdown_document2_args_merged$css <- c(
+      markdown_document2_args_merged$css,
+      "assets/downlit.css"
+    )
   }
 
 
