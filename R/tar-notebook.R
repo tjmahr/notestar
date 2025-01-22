@@ -678,17 +678,38 @@ notebook_write_yaml <- function(x, file, ...) {
   file
 }
 
-#' Open the notebook in a browser
+#' Open the notebook in a browser or in the RStudio viewer
 #'
 #' @param file full path to the notebook file. Defaults to `NULL` in which case
 #'   it finds the path using targets.
 #' @return This function is called for its side effects so it return `NULL`
 #'   invisibly.
 #' @export
+#' @rdname notebook_browse
 notebook_browse <- function(file = NULL) {
   if (is.null(file)) {
     file <- targets::tar_read_raw("notebook")
   }
   utils::browseURL(file)
+  invisible(NULL)
+}
+
+#' @export
+#' @rdname notebook_browse
+notebook_view <- function(file = NULL) {
+  if (is.null(file)) {
+    file <- targets::tar_read_raw("notebook")
+  }
+
+  if (!rlang::is_installed("rstudioapi")) {
+    warning("rstudioapi is not installed. Opening in browser instead.")
+    utils::browseURL(file)
+  } else {
+    html_content <- readLines(file)
+    temp_file <- tempfile(fileext = ".html")
+    writeLines(html_content, temp_file)
+    rstudioapi::viewer(temp_file)
+  }
+
   invisible(NULL)
 }

@@ -2,9 +2,12 @@
 % Please edit documentation in R/tar-notebook.R
 \name{notebook_browse}
 \alias{notebook_browse}
-\title{Open the notebook in a browser}
+\alias{notebook_view}
+\title{Open the notebook in a browser or in the RStudio viewer}
 \usage{
 notebook_browse(file = NULL)
+
+notebook_view(file = NULL)
 }
 \arguments{
 \item{file}{full path to the notebook file. Defaults to \code{NULL} in which case
@@ -15,5 +18,5 @@ This function is called for its side effects so it return \code{NULL}
 invisibly.
 }
 \description{
-Open the notebook in a browser
+Open the notebook in a browser or in the RStudio viewer
 }

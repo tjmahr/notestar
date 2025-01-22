@@ -1,4 +1,9 @@
-# notestar (development version)
+# notestar 0.0.0.9004
+
+- `notebook_view()` to view a notebook in RStudio
+
+
+# notestar 0.0.0.9003
 
 ## Switch to config.yml for storing options
 

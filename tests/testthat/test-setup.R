@@ -213,7 +213,7 @@ test_that("index.Rmd can be customized (references)", {
   expect_false("notebook" %in% outdated)
 
   writeLines(
-    c(readLines("./notebook/refs.bib"), format(toBibtex(citation("nlme")))),
+    c(readLines("./notebook/refs.bib"), format(toBibtex(citation("stats")))),
     "./notebook/refs.bib"
   )
 
